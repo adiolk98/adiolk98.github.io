@@ -8,12 +8,13 @@ const TitleBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #222;
-  color: #fff;
-  padding: 0 12px;
-  height:24px;
+  background: linear-gradient(180deg, var(--crt-rose) 0%, var(--crt-rose) 52%, var(--crt-rose-lo) 100%);
+  color: var(--crt-rose-ink);
+  padding: 0 6px 0 10px;
+  height: 30px;
+  font-family: 'DotGothic16', monospace;
   font-size: 1.1rem;
-  border-bottom: 1px solid #ddd;
+  box-shadow: inset 0 0 0 2px var(--crt-line);
   cursor: move;
   user-select: none;
 `;
@@ -28,19 +29,27 @@ const TitleBarControls = styled.div`
   display: flex;
   align-items: center;
   button {
-    background: #ff5f56;
+    /* Real hit target is bigger than the visual swatch: the tube's barrel filter warps
+       what's painted but not where clicks register, so a generous target forgives the
+       few px of visual/actual mismatch near the screen edges. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .2);
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .34);
     border: none;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    margin-left: 8px;
+    color: var(--crt-rose-ink);
+    width: 26px;
+    height: 26px;
+    line-height: 1;
+    font-size: 13px;
     cursor: pointer;
     transition: background 0.2s;
     &:hover {
-      background: #ff2d1a;
+      background: rgba(0, 0, 0, .4);
     }
     &:focus-visible {
-      outline: 2px solid #3b82f6;
+      outline: 2px solid var(--crt-ink);
       outline-offset: 2px;
     }
   }
@@ -48,11 +57,11 @@ const TitleBarControls = styled.div`
 
 const WindowBody = styled.div`
   padding: 10px 8px;
-  height: calc(100% - 24px);
-  max-height: calc(100% - 24px);
+  height: calc(100% - 30px);
+  max-height: calc(100% - 30px);
   overflow-y: hidden;
   overflow-x: hidden;
-  background: #f8f8f8;
+  background: var(--crt-cream);
   &::-webkit-scrollbar {
     width: 8px;
     background: #eee;
@@ -113,14 +122,14 @@ const CustomWindowFrame = ({ icon, title, children, onClose, onFocus, defaultSiz
             {title}
           </TitleBarText>
           <TitleBarControls>
-            <button aria-label={`Close ${title} window`} onClick={() => { 
+            <button aria-label={`Close ${title} window`} onClick={() => {
               try {
                 playCancel();
               } catch (error) {
                 console.warn('Close button sound error (handled):', error.message);
               }
-              onClose && onClose(); 
-            }} />
+              onClose && onClose();
+            }}>✕</button>
           </TitleBarControls>
         </TitleBar>
         <WindowBody>

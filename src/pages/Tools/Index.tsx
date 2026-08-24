@@ -12,6 +12,7 @@ export const ToolsIndex: React.FC = () => {
       flexDirection: 'column',
       alignItems: 'center',
       minHeight: '100vh',
+      flexShrink: 0,
       padding: '60px 24px',
       boxSizing: 'border-box',
       position: 'relative',

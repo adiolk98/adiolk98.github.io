@@ -86,16 +86,16 @@ export default function MacMenuBar({ onOpenApp }) {
   const barStyle = {
     position: 'relative',
     width: '100%',
-    height: 28,
-    background: '#fff',
-    borderBottom: '1.5px solid #222',
+    height: 30,
+    flex: '0 0 auto',
+    background: 'linear-gradient(180deg, var(--crt-rose) 0%, var(--crt-rose) 52%, var(--crt-rose-lo) 100%)',
+    boxShadow: 'inset 0 0 0 2px var(--crt-line)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    fontFamily: "'Cubic_11', 'Press Start 2P', 'Pixel', 'monospace'",
-    fontSize: 15,
-    color: '#222',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+    fontFamily: "'DotGothic16', 'Cubic_11', monospace",
+    fontSize: 14,
+    color: 'var(--crt-rose-ink)',
     zIndex: 999
   };
   const leftStyle = {
@@ -113,11 +113,10 @@ export default function MacMenuBar({ onOpenApp }) {
   };
   const menuItemStyle = (menuName) => ({
     cursor: 'pointer',
-    padding: '2px 6px',
-    borderRadius: 4,
+    padding: '3px 7px',
     transition: 'background 0.2s',
     userSelect: 'none',
-    backgroundColor: openMenu === menuName ? '#e5e5e5' : 'transparent'
+    backgroundColor: openMenu === menuName ? 'rgba(0,0,0,.24)' : 'transparent'
   });
   const rightStyle = {
     display: 'flex',
@@ -145,8 +144,7 @@ export default function MacMenuBar({ onOpenApp }) {
                   ...appleStyle,
                   cursor: 'pointer',
                   padding: '2px',
-                  borderRadius: 4,
-                  backgroundColor: openMenu === itemKey ? '#e5e5e5' : 'transparent',
+                  backgroundColor: openMenu === itemKey ? 'rgba(0,0,0,.24)' : 'transparent',
                 }}
                 onClick={(e) => handleMenuClick(itemKey, e)}
               />

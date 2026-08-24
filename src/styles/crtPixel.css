@@ -1,0 +1,125 @@
+/* Shōwa CRT Pixel UI — shared design tokens, reused by CrtTube chrome and by
+   any page/panel that wants the cream/rose pixel look (Me page, dialogs, menu bar). */
+:root {
+  --crt-phos-1: #2a4257;
+  --crt-phos-2: #152431;
+  --crt-phos-3: #0c161e;
+  --crt-cream: #f3e7d0;
+  --crt-pink: #efb0b4;
+  --crt-rose: #d98d94;
+  --crt-rose-lo: #c3737c;
+  --crt-rose-ink: #fdf4e6;
+  --crt-tan: #ecd8a6;
+  --crt-tan-lo: #cfae74;
+  --crt-ink: #243244;
+  --crt-ink-2: #5d6b7d;
+  --crt-line: #171c24;
+  --crt-red: #d8737a;
+  --crt-red-lo: #b4545e;
+  --crt-green: #6f9a72;
+  --crt-slate: #4a5661;
+  --crt-slate-lo: #313b45;
+  --crt-gold: #e8b445;
+}
+
+/* stepped pixel corners — apply to any panel/button/bar */
+.px {
+  clip-path: polygon(
+    .5em 0, calc(100% - .5em) 0, calc(100% - .5em) .25em, 100% .25em,
+    100% calc(100% - .5em), calc(100% - .25em) calc(100% - .5em), calc(100% - .25em) calc(100% - .25em), calc(100% - .5em) calc(100% - .25em),
+    calc(100% - .5em) 100%, .5em 100%, .5em calc(100% - .25em), .25em calc(100% - .25em),
+    .25em calc(100% - .5em), 0 calc(100% - .5em), 0 .5em, .25em .5em, .25em .25em, .5em .25em, .5em 0
+  );
+}
+
+.crt-panel {
+  background: var(--crt-cream);
+  color: var(--crt-ink);
+  box-shadow: inset 0 0 0 .22em var(--crt-line), .22em .26em 0 rgba(0, 0, 0, .34);
+  padding: .8em 1em;
+}
+.crt-panel.pink { background: var(--crt-pink); }
+
+.crt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6em;
+  border: 0;
+  cursor: pointer;
+  font-family: 'Press Start 2P', 'DotGothic16', monospace;
+  font-size: .8em;
+  letter-spacing: .04em;
+  padding: .7em 1.2em;
+  box-shadow: inset 0 0 0 .22em var(--crt-line), .18em .22em 0 rgba(0, 0, 0, .4);
+}
+.crt-btn.red { background: var(--crt-red); color: var(--crt-cream); }
+.crt-btn.red:hover { background: var(--crt-red-lo); }
+.crt-btn.dark { background: linear-gradient(180deg, var(--crt-slate), var(--crt-slate-lo)); color: var(--crt-rose-ink); }
+.crt-btn.tan { background: linear-gradient(180deg, var(--crt-tan), var(--crt-tan-lo)); color: var(--crt-ink); }
+.crt-btn:active { transform: translate(.09em, .11em); box-shadow: inset 0 0 0 .22em var(--crt-line); }
+.crt-btn:focus-visible { outline: .18em solid var(--crt-ink); outline-offset: .24em; }
+
+.crt-bar {
+  display: flex;
+  align-items: center;
+  gap: .85em;
+  padding: .55em .9em;
+  background: linear-gradient(180deg, var(--crt-rose) 0%, var(--crt-rose) 52%, var(--crt-rose-lo) 100%);
+  box-shadow: inset 0 0 0 .22em var(--crt-line);
+  color: var(--crt-rose-ink);
+  font-family: 'Press Start 2P', monospace;
+}
+
+.crt-nav {
+  display: flex;
+  background: var(--crt-cream);
+  box-shadow: inset 0 0 0 .22em var(--crt-line);
+}
+.crt-nav a, .crt-nav button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45em;
+  padding: .7em .3em;
+  font-size: 1em;
+  color: var(--crt-ink-2);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.crt-nav a.on, .crt-nav button.on {
+  background: rgba(216, 115, 122, .18);
+  color: var(--crt-red-lo);
+  box-shadow: inset 0 -.28em 0 var(--crt-red);
+}
+
+/* dialog / scrim — fixed, not absolute: .warp has a CSS filter, which establishes a
+   containing block for fixed-position descendants, so this still pins to the tube
+   (not the viewport) while staying immune to .stage's internal scroll offset. */
+.crt-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6%;
+  background: rgba(5, 12, 18, .16);
+}
+.crt-scrim.on { display: flex; }
+.crt-dlgwrap {
+  width: min(78%, 34em);
+  filter: drop-shadow(.34em .4em 0 rgba(0, 0, 0, .5));
+  animation: crt-pop .12s steps(3) both;
+}
+@keyframes crt-pop { from { transform: scaleY(.12); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .crt-dlgwrap { animation: none; } }
+.crt-dlg { text-align: center; }
+.crt-dlg h2 { font-size: 1.3em; font-weight: 400; letter-spacing: .1em; line-height: 1.4; margin: 0; }
+.crt-dlg .rule { height: .2em; background: var(--crt-line); margin: .5em -1em .8em; }
+.crt-dlg p { font-size: 1.05em; line-height: 1.7; margin: 0 0 1.1em; }
+.crt-dlg .kw { font-style: normal; color: var(--crt-red-lo); padding: 0 .25em; }

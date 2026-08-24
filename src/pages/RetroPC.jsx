@@ -2,12 +2,6 @@ import React, { useState, lazy, Suspense } from "react";
 import { Helmet } from 'react-helmet-async';
 import {
   GlobalStyle,
-  CRTFrame,
-  CRTScreen,
-  CRTReflection,
-  CRTScanlines,
-  CRTVignette,
-  CRTBackground,
   Particles,
   DesktopIconsContainer
 } from "../components/style";
@@ -203,62 +197,56 @@ function AppContent() {
     .sort(w => w.id === activeAppId ? 1 : -1);
 
   return (
-    <CRTFrame>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       <Helmet>
         <title>adi | Retro OS</title>
         <meta name="description" content="A personal website reimagined as a retro desktop OS with windows, apps, and mini-games by adi." />
       </Helmet>
-      <CRTScreen>
-        <DesktopBackground background={background} />
-        <CRTReflection style={{ pointerEvents: 'none' }} />
-        <CRTScanlines style={{ pointerEvents: 'none' }} />
-        <CRTVignette style={{ pointerEvents: 'none' }} />
-        <Particles style={{ pointerEvents: 'none' }} />
-        <GlobalStyle />
-        <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
-          <MacMenuBar onOpenApp={handleOpenApp} />
-          {/* 桌面 icon */}
-          <DesktopIconsContainer style={{ zIndex: 1 }}>
-            {APP_CONFIGS.map(app => (
-              <DesktopIcon
+      <DesktopBackground background={background} />
+      <Particles style={{ pointerEvents: 'none' }} />
+      <GlobalStyle />
+      <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
+        <MacMenuBar onOpenApp={handleOpenApp} />
+        {/* 桌面 icon */}
+        <DesktopIconsContainer style={{ zIndex: 1 }}>
+          {APP_CONFIGS.map(app => (
+            <DesktopIcon
+              key={app.id}
+              icon={app.icon}
+              label={app.name}
+              onDoubleClick={() => handleOpenApp(app.id)}
+              disabled={app.disabled}
+            />
+          ))}
+        </DesktopIconsContainer>
+        {/* 視窗 */}
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          {openedWindows.map(app => {
+            const AppComponent = app.Component;
+            return (
+              <CustomWindowFrame
                 key={app.id}
                 icon={app.icon}
-                label={app.name}
-                onDoubleClick={() => handleOpenApp(app.id)}
-                disabled={app.disabled}
-              />
-            ))}
-          </DesktopIconsContainer>
-          {/* 視窗 */}
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            {openedWindows.map(app => {
-              const AppComponent = app.Component;
-              return (
-                <CustomWindowFrame
-                  key={app.id}
-                  icon={app.icon}
-                  {...app.windowProps}
-                  onClose={() => handleCloseApp(app.id)}
-                  onFocus={() => setActiveAppId(app.id)}
-                >
-                  <Suspense fallback={<WindowLoadingFallback />}>
-                    {AppComponent ? <AppComponent /> : app.content}
-                  </Suspense>
-                </CustomWindowFrame>
-              );
-            })}
-          </div>
-          {/* <Taskbar activeAppId={activeAppId} onAppClick={handleAppClick} /> */}
+                {...app.windowProps}
+                onClose={() => handleCloseApp(app.id)}
+                onFocus={() => setActiveAppId(app.id)}
+              >
+                <Suspense fallback={<WindowLoadingFallback />}>
+                  {AppComponent ? <AppComponent /> : app.content}
+                </Suspense>
+              </CustomWindowFrame>
+            );
+          })}
         </div>
-      </CRTScreen>
-    </CRTFrame>
+        {/* <Taskbar activeAppId={activeAppId} onAppClick={handleAppClick} /> */}
+      </div>
+    </div>
   );
 }
 
 function App() {
   return (
     <ErrorBoundary>
-      <CRTBackground />
       <FileSystemProvider>
         <ClickSoundProvider>
           <SoundProvider>

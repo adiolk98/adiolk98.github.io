@@ -35,8 +35,9 @@ const IconImage = styled.img`
 `;
 
 const IconLabel = styled.span`
-  color: white;
+  color: var(--crt-rose-ink, #fdf4e6);
   text-shadow: 1px 1px 2px black;
+  font-family: 'DotGothic16', monospace;
   font-size: 12px;
   text-align: center;
   margin-top: 5px;

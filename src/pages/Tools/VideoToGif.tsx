@@ -301,6 +301,7 @@ export const VideoToGif: React.FC = () => {
       flexDirection: 'column',
       alignItems: 'center',
       minHeight: '100vh',
+      flexShrink: 0,
       padding: isMobile ? '20px 12px 40px' : '60px 24px',
       boxSizing: 'border-box',
       position: 'relative',

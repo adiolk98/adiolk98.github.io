@@ -1,136 +1,122 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import '../styles/crtPixel.css';
+
+const WORK = [
+  { title: 'Retro OS', desc: '把個人網站重新做成一台桌面電腦：可拖曳視窗、應用程式與小遊戲。', tag: 'WEB' },
+  { title: 'CCD Cam', desc: '網路攝影機模擬 Kodak DC50 —— 顆粒、光暈與類比感的不完美。', tag: 'IMG' },
+];
+
+const CONTACT = [
+  { label: 'email', value: 'kokp520@gmail.com', href: 'mailto:kokp520@gmail.com' },
+  { label: 'github', value: '@kokp520', href: 'https://github.com/kokp520' },
+];
 
 export const Me: React.FC = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const okRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!dialogOpen) return;
+    okRef.current?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+        e.preventDefault();
+        setDialogOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [dialogOpen]);
+
   return (
-    <div style={{
-      background: '#050505',
-      color: '#e8e8e8',
-      minHeight: '100vh',
-      fontFamily: '"DM Sans", system-ui, sans-serif',
-      padding: '0 28px 80px',
-      boxSizing: 'border-box'
-    }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Helmet>
         <title>adi | Designer & Developer</title>
-        <meta name="description" content="I’m adi — a designer, developer and maker. I build thoughtful, playful digital work across web, 3D, and typography." />
+        <meta name="description" content="I'm adi — a designer, developer and maker. I build thoughtful, playful digital work across web, 3D, and typography." />
       </Helmet>
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        background: 'rgba(5,5,5,0.82)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        margin: '0 -28px 40px',
-        padding: '14px 28px'
-      }}>
-        <div style={{
-          maxWidth: '1120px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{ fontFamily: '"Space Mono", monospace', fontWeight: 700, fontSize: '15px' }}>
-            adiolk<span style={{ opacity: 0.55 }}>98</span>
-          </div>
-          <nav style={{ display: 'flex', gap: '22px', fontSize: '13px', fontWeight: 500 }}>
-            <a href="#work" style={{ color: '#888', textDecoration: 'none' }}>work</a>
-            <a href="#articles" style={{ color: '#888', textDecoration: 'none' }}>articles</a>
-            <a href="#journals" style={{ color: '#888', textDecoration: 'none' }}>journals</a>
-            <a href="#contact" style={{ color: '#888', textDecoration: 'none' }}>contact</a>
-          </nav>
-        </div>
-      </header>
 
-      <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
-        <section style={{ padding: '40px 0' }}>
-          <h1 style={{
-            fontSize: 'clamp(36px, 5vw, 64px)',
-            fontWeight: 500,
-            lineHeight: 1.1,
-            margin: '0 0 18px',
-            color: '#f0f0f0'
-          }}>
-            Designing small systems with <em style={{ fontFamily: 'Instrument Serif, serif', fontStyle: 'italic', color: '#9a9a9a' }}>care & craft</em>.
-          </h1>
-          <p style={{ color: '#aaaaaa', fontSize: '15px', lineHeight: 1.65, maxWidth: '440px' }}>
-            I’m adiolk98 — a designer, developer and maker.
-            I build thoughtful, playful digital work across web, 3D, and typography.
+      <div className="crt-bar px" style={{ margin: '.7em .7em 0' }}>
+        <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '.85em', letterSpacing: '.04em' }}>
+          adiolk<span style={{ opacity: .6 }}>98</span>
+        </span>
+        <button
+          className="crt-btn tan px"
+          style={{ marginLeft: 'auto', fontSize: '.66em' }}
+          onClick={() => setDialogOpen(true)}
+        >
+          自我介紹
+        </button>
+      </div>
+
+      <nav className="crt-nav px" style={{ margin: '.6em .7em 0' }}>
+        <a href="#/" className="crt-nav-link">首頁</a>
+        <a href="#/tools" className="crt-nav-link">工具</a>
+        <a href="#/me" className="on">簡介</a>
+      </nav>
+
+      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '.9em .7em 1.2em', display: 'flex', flexDirection: 'column', gap: '.9em' }}>
+        <section className="crt-panel px" style={{ fontSize: '1.1em' }}>
+          <div style={{ fontSize: '1.3em', lineHeight: 1.55, marginBottom: '.5em' }}>
+            用<em style={{ color: 'var(--crt-red-lo)', fontStyle: 'normal' }}>細心與工藝</em>設計小系統。
+          </div>
+          <p style={{ color: 'var(--crt-ink-2)', lineHeight: 1.7, margin: 0 }}>
+            我是 adiolk98，一名設計師、開發者與創作者。我在 web、3D 與字體排印之間，打造有想法又帶點玩心的作品。
           </p>
         </section>
 
-        <section id="work" style={{ marginTop: '64px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '7px 12px',
-            borderRadius: '999px',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.14)',
-            fontSize: '12px',
-            fontWeight: 600,
-            marginBottom: '24px'
-          }}>
-            🧩 selected work
+        <section>
+          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '.7em', color: 'var(--crt-rose)', marginBottom: '.6em' }}>
+            精選作品
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-            <div style={{ background: '#0c0c0c', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '18px', padding: '20px' }}>
-              <h3 style={{ margin: '0 0 6px', fontSize: '15px', color: '#f0f0f0' }}>Retro OS</h3>
-              <p style={{ margin: 0, color: '#9a9a9a', fontSize: '13px', lineHeight: 1.55 }}>A personal website reimagined as a desktop: windows, apps, and mini-games.</p>
-            </div>
-            <div style={{ background: '#0c0c0c', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '18px', padding: '20px' }}>
-              <h3 style={{ margin: '0 0 6px', fontSize: '15px', color: '#f0f0f0' }}>CCD Cam</h3>
-              <p style={{ margin: 0, color: '#9a9a9a', fontSize: '13px', lineHeight: 1.55 }}>Webcam meets Kodak DC50 — grain, glow, and analog imperfection.</p>
-            </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '.7em' }}>
+            {WORK.map(w => (
+              <div key={w.title} className="crt-panel pink px">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <strong style={{ fontSize: '1.1em' }}>{w.title}</strong>
+                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '.6em', color: 'var(--crt-ink-2)' }}>{w.tag}</span>
+                </div>
+                <p style={{ margin: '.4em 0 0', color: 'var(--crt-ink-2)', fontSize: '.95em', lineHeight: 1.6 }}>{w.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        <section id="contact" style={{ marginTop: '64px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '7px 12px',
-            borderRadius: '999px',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.14)',
-            fontSize: '12px',
-            fontWeight: 600,
-            marginBottom: '16px'
-          }}>
-            📮 contact
+        <section>
+          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '.7em', color: 'var(--crt-rose)', marginBottom: '.6em' }}>
+            聯絡方式
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-            <a href="mailto:kokp520@gmail.com" target="_blank" rel="noreferrer" style={{
-              background: '#0c0c0c',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '16px',
-              padding: '18px',
-              textAlign: 'center',
-              textDecoration: 'none',
-              color: 'inherit'
-            }}>
-              <div style={{ fontSize: '11px', color: '#777', fontFamily: '"Space Mono", monospace' }}>email</div>
-              <div style={{ fontWeight: 700, fontSize: '14px', marginTop: '3px' }}>kokp520@gmail.com</div>
-            </a>
-            <a href="https://github.com/kokp520" target="_blank" rel="noreferrer" style={{
-              background: '#0c0c0c',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '16px',
-              padding: '18px',
-              textAlign: 'center',
-              textDecoration: 'none',
-              color: 'inherit'
-            }}>
-              <div style={{ fontSize: '11px', color: '#777', fontFamily: '"Space Mono", monospace' }}>github</div>
-              <div style={{ fontWeight: 700, fontSize: '14px', marginTop: '3px' }}>@kokp520</div>
-            </a>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '.7em' }}>
+            {CONTACT.map(c => (
+              <a key={c.label} href={c.href} target="_blank" rel="noreferrer" className="crt-panel px" style={{ textAlign: 'center', textDecoration: 'none', display: 'block' }}>
+                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '.6em', color: 'var(--crt-ink-2)' }}>{c.label}</div>
+                <div style={{ fontWeight: 700, fontSize: '1em', marginTop: '.3em' }}>{c.value}</div>
+              </a>
+            ))}
           </div>
         </section>
       </div>
+
+      <div className={`crt-scrim${dialogOpen ? ' on' : ''}`} onClick={e => { if (e.target === e.currentTarget) setDialogOpen(false); }}>
+        <div className="crt-dlgwrap">
+          <div className="crt-dlg crt-panel px" role="dialog" aria-modal="true" aria-labelledby="me-dtit">
+            <h2 id="me-dtit">關於 adi</h2>
+            <div className="rule" />
+            <p>
+              喜歡把<em className="kw">介面</em>做得有記憶點 —— 從像素風的桌面模擬器到細節講究的工具頁，
+              都是同一個人在不同心情下的作品。
+            </p>
+            <button ref={okRef} className="crt-btn red px" onClick={() => setDialogOpen(false)}>
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .crt-nav-link{ color: var(--crt-ink-2); }
+        .crt-nav-link.on, .crt-nav a.on{ background: rgba(216,115,122,.18); color: var(--crt-red-lo); box-shadow: inset 0 -.28em 0 var(--crt-red); }
+      `}</style>
     </div>
   );
 };
