@@ -35,7 +35,7 @@ export default function MacMenuBar({ onOpenApp }) {
         { label: "登出", disabled: true, action: () => alert("登出功能待開發！") },
     ],
     檔案: [
-      { label: "New Finder Window", action: () => onOpenApp('browser') },
+      { label: "New Finder Window", action: () => onOpenApp('finder') },
       { label: "New Terminal", action: () => onOpenApp('terminal') },
       { type: "separator" },
       { label: "Move to Trash", disabled: true },

@@ -1,0 +1,41 @@
+.finder-icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.finder-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 84px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.finder-icon:hover,
+.finder-icon:focus-visible {
+  background: rgba(36, 50, 68, 0.08);
+  outline: none;
+}
+
+.finder-icon img {
+  image-rendering: pixelated;
+}
+
+.finder-icon-emoji {
+  font-size: 40px;
+  line-height: 48px;
+}
+
+.finder-icon span:last-child {
+  color: var(--crt-ink, #243244);
+  font-size: 12px;
+  text-align: center;
+  word-break: break-word;
+}

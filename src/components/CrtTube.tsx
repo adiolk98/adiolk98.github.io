@@ -144,7 +144,9 @@ export default function CrtTube({ children }: CrtTubeProps) {
 
     function redraw() {
       drawScanlines(scan);
-      warp.style.filter = 'none';
+      // offsetWidth/Height is a layout measurement, unaffected by the paint-only
+      // `filter` — toggling it off here bought nothing and caused a visible
+      // flash (barrel warp snapping off then back on) on every resize/font-load.
       const w = Math.round(warp.offsetWidth);
       const h = Math.round(warp.offsetHeight);
       if (w < 40) return;
@@ -213,9 +215,9 @@ export default function CrtTube({ children }: CrtTubeProps) {
         <filter id="crt-barrel" x="0" y="0" width="100%" height="100%" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feImage ref={bmapRef} result="m" preserveAspectRatio="none" />
           <feDisplacementMap ref={bdispRef} in="SourceGraphic" in2="m" scale={0} xChannelSelector="R" yChannelSelector="G" result="warped" />
-          <feGaussianBlur in="warped" stdDeviation={0.5} result="soft" />
-          <feGaussianBlur in="warped" stdDeviation={2.8} result="halo" />
-          <feComposite in="halo" in2="soft" operator="arithmetic" k1={0} k2={0.22} k3={1} k4={0} />
+          <feGaussianBlur in="warped" stdDeviation={0.25} result="soft" />
+          <feGaussianBlur in="warped" stdDeviation={1.4} result="halo" />
+          <feComposite in="halo" in2="soft" operator="arithmetic" k1={0} k2={0.12} k3={1} k4={0} />
         </filter>
       </svg>
 

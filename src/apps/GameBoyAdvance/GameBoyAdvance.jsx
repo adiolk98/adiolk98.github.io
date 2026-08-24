@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GBABody from './components/GBABody';
 import GBAScreen from './components/GBAScreen';
 import SizeController from './components/SizeController';
 import OpeningVideo from './games/OpeningVideo';
+import PressStartScreen from './games/PressStartScreen';
 import WorldGame from './games/WorldGame/WorldGame';
 import SnakeGame from './games/SnakeGame/SnakeGame';
 import { useGameState } from './hooks/useGameState';
@@ -10,8 +12,10 @@ import { useScale } from './hooks/useScale';
 import { useKeyboard } from './hooks/useKeyboard';
 
 const GameBoyAdvance = () => {
-  const { gameState, goToWorld, goToSnake, isOpening, isWorld, isSnake } = useGameState();
+  const { gameState, goToWorld, goToSnake, goToPressStart, isOpening, isPressStart, isWorld, isSnake } = useGameState();
   const { scale, scaleUp, scaleDown } = useScale(1);
+  const navigate = useNavigate();
+  const handleStart = () => navigate('/game');
   
   // 貪吃蛇遊戲狀態
   const [snakeDirection, setSnakeDirection] = useState({ x: 1, y: 0 });
@@ -62,9 +66,13 @@ const GameBoyAdvance = () => {
 
   const renderGameContent = () => {
     if (isOpening) {
-      return <OpeningVideo onVideoEnd={goToWorld} />;
+      return <OpeningVideo onVideoEnd={goToPressStart} />;
     }
-    
+
+    if (isPressStart) {
+      return <PressStartScreen onStart={handleStart} />;
+    }
+
     if (isWorld) {
       return (
         <WorldGame

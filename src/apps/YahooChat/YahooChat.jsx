@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Rnd } from 'react-rnd';
 import YahooLoginScreen from './YahooLoginScreen';
 import YahooMainWindow from './YahooMainWindow';
 import YahooChatWindow from './YahooChatWindow';
+import GhostChatWindow from './GhostChatWindow';
 import './YahooChat.css';
+
+// 聊天彈出視窗要 portal 到桌面視窗層，而不是留在即時通自己的視窗裡，
+// 這樣才會是一個真正獨立、可拖曳的桌面視窗，而不是被裁切在母視窗內的子視窗。
+const DESKTOP_WINDOWS_LAYER_ID = 'desktop-windows-layer';
 
 // 主要即時通組件
 function YahooChat() {
@@ -60,16 +67,35 @@ function YahooChat() {
         onOpenChat={handleOpenChat}
       />
 
-      {/* 彈出的聊天視窗 */}
-      {Object.entries(openChatWindows).map(([roomId, room]) => (
-        <div key={roomId} className="chat-popup-overlay">
-          <YahooChatWindow
-            room={room}
-            username={username}
-            onClose={() => handleCloseChat(roomId)}
-          />
-        </div>
-      ))}
+      {/* 彈出的聊天視窗：portal 成獨立的桌面視窗，可自由拖曳，不受即時通母視窗邊界限制 */}
+      {typeof document !== 'undefined' && document.getElementById(DESKTOP_WINDOWS_LAYER_ID) &&
+        Object.entries(openChatWindows).map(([roomId, room], index) =>
+          createPortal(
+            <Rnd
+              key={roomId}
+              default={{ x: 460 + index * 36, y: 90 + index * 36, width: 380, height: 520 }}
+              minWidth={300}
+              minHeight={360}
+              dragHandleClassName="chat-popup-titlebar"
+              style={{ zIndex: 1000 + index }}
+            >
+              {room.id === 'ghost-akai' ? (
+                <GhostChatWindow
+                  room={room}
+                  onClose={() => handleCloseChat(roomId)}
+                />
+              ) : (
+                <YahooChatWindow
+                  room={room}
+                  username={username}
+                  onClose={() => handleCloseChat(roomId)}
+                />
+              )}
+            </Rnd>,
+            document.getElementById(DESKTOP_WINDOWS_LAYER_ID),
+            roomId
+          )
+        )}
     </div>
   );
 }

@@ -35,6 +35,13 @@ const CHAT_ROOMS = [
     description: '이영지 - Small girl feat. 도경수 (D.O.)',
     icon: '🎵',
     status: 'online'
+  },
+  {
+    id: 'ghost-akai',
+    name: '阿凱',
+    description: '(這個帳號已經被刪除)',
+    icon: '👤',
+    status: 'offline'
   }
 ];
 

@@ -26,6 +26,7 @@ export const COLORS = {
 // 遊戲狀態
 export const GAME_STATES = {
   OPENING: 'opening',
+  PRESS_START: 'press_start',
   WORLD: 'world',
   SNAKE: 'snake'
 };

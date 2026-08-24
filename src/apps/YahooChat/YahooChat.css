@@ -996,16 +996,7 @@
   min-height: 20px; /* 確保最小高度 */
 }
 
-/* ========== 彈出聊天視窗樣式 ========== */
-.chat-popup-overlay {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-  z-index: 100;
-  width: calc(100% - 100px);
-  height: calc(100% - 100px);
-}
-
+/* ========== 彈出聊天視窗樣式（獨立桌面視窗，由 Rnd 控制位置/大小） ========== */
 .yahoo-chat-popup {
   width: 100%;
   height: 100%;
@@ -1113,21 +1104,6 @@
 }
 
 /* 彈出視窗拖拽功能 */
-.chat-popup-overlay:nth-child(2) {
-  top: 100px;
-  left: 100px;
-}
-
-.chat-popup-overlay:nth-child(3) {
-  top: 150px;
-  left: 150px;
-}
-
-.chat-popup-overlay:nth-child(4) {
-  top: 200px;
-  left: 200px;
-}
-
 /* 視窗搖晃動畫 */
 .yahoo-chat-popup.shake {
   animation: window-shake 0.5s ease-in-out;

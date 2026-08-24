@@ -288,6 +288,7 @@ const VolumeBar = styled.input`
 const songList = [
   { name: "周杰倫-稻香", path: "/assets/mp3/Jay_chou-1.mp3" },
   { name: "Save as-tobylane", path: "/assets/mp3/Save-as-tobylane.mp3" },
+  { name: "錄音_0477（未命名）", path: "/assets/mp3/Save-as-tobylane.mp3" },
 ];
 
 function formatTime(sec) {

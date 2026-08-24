@@ -10,6 +10,7 @@ import DesktopIcon from "../components/DesktopIcon";
 import CustomWindowFrame from "../components/WindowXP";
 import DesktopBackground from "../components/DesktopBackground";
 import Taskbar from "../components/Taskbar";
+import Finder from "../components/Finder";
 import { ClickSoundProvider, SoundProvider } from "../components/ClickSoundContext";
 import { AppWindowsProvider, useAppWindows } from "../components/AppWindowsContext";
 import MacMenuBar from "../components/MacMenuBar";
@@ -26,6 +27,7 @@ const VSCodeTextEditor = lazy(() => import("../apps/vscodeEditor"));
 const DitherImageViewer = lazy(() => import("../components/DitherImageViewer"));
 const OpenAppStore = lazy(() => import("../apps/OpenAppStore"));
 const GameBoyAdvance = lazy(() => import("../apps/GameBoyAdvance"));
+const LockedFolderApp = lazy(() => import("../components/LockedFolderApp"));
 
 const WindowLoadingFallback = () => (
   <div style={{
@@ -60,31 +62,12 @@ const APP_CONFIGS = [
         overflowY: 'auto',
         boxSizing: 'border-box',
         background: '#fff',
+        color: '#222',
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
       }}>
         <h2 style={{ marginBottom: '8px', color: '#2d72d9' }}>Welcome to adi.tw. v1</h2>
-        <div style={{ marginBottom: '12px', color: '#d9534f', fontWeight: 'bold' }}>
-          公告：即時通功能可以留言！我會看到！
-        </div>
-        <div>
-          <span style={{ fontWeight: 'bold' }}>feature:</span>
-          <ol style={{ margin: '8px 0 0 24px' }}>
-            <li>即時通可以留言!!</li>
-            <li>instagram 盡量還原我喜歡的ccd風格, 原本想說要做無名小站</li>
-            <li>cv.pdf, 是我的履歷有興趣可以聯絡我 kokp520@gmail.com</li>
-            <li>App store 目前還沒做其他功能只放連結！</li>
-          </ol>
-        </div>
-        <div>
-          <span style={{ fontWeight: 'bold' }}>todo：</span>
-          <ol style={{ margin: '8px 0 0 24px' }}>
-            <li>[feature]yahoo即時通 storage狀態功能</li>
-            <li>[feature]finder feature</li>
-            <li>[feature]GBA game 做實際小遊戲，頁面調整</li>
-            <li>[feature]chrome 多做網頁的功能</li>
-          </ol>
-        </div>
+        <div>嗨，這是我的個人網站，歡迎使用，歡迎多點點看！</div>
       </div>
     )
   },
@@ -159,6 +142,20 @@ const APP_CONFIGS = [
       window.location.href = '#/tools';
     },
   },
+  {
+    id: 'finder',
+    name: 'Finder',
+    icon: '/assets/app/finder-folder.svg',
+    windowProps: { title: 'Finder', defaultSize: { x: 260, y: 140, width: 380, height: 320 }, resizable: true },
+    Component: Finder,
+  },
+  {
+    id: 'locked-folder',
+    name: '不要打開',
+    icon: '/assets/app/locked-folder.svg',
+    windowProps: { title: '不要打開', defaultSize: { x: 260, y: 160, width: 340, height: 240 }, resizable: false },
+    Component: LockedFolderApp,
+  },
 ];
 
 function AppContent() {
@@ -220,7 +217,7 @@ function AppContent() {
           ))}
         </DesktopIconsContainer>
         {/* 視窗 */}
-        <div style={{ position: 'relative', zIndex: 2 }}>
+        <div id="desktop-windows-layer" style={{ position: 'relative', zIndex: 2 }}>
           {openedWindows.map(app => {
             const AppComponent = app.Component;
             return (

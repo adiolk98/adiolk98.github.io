@@ -9,7 +9,9 @@ const initialFileSystem = {
     type: 'folder',
     children: [
         { name: 'home', type: 'folder', children: [] },
-        { name: 'documents', type: 'folder', children: [] },
+        { name: 'documents', type: 'folder', children: [
+            { name: '未命名.txt', type: 'file' },
+        ] },
         { name: 'downloads', type: 'folder', children: [] },
         { name: 'music', type: 'folder', children: [] },
         { name: 'videos', type: 'folder', children: [] },
