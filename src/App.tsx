@@ -9,6 +9,7 @@ const GifToZip = lazy(() => import('./pages/Tools/GifToZip').then(m => ({ defaul
 const JsonFormatter = lazy(() => import('./pages/Tools/JsonFormatter').then(m => ({ default: m.JsonFormatter })))
 const YamlFormatter = lazy(() => import('./pages/Tools/YamlFormatter').then(m => ({ default: m.YamlFormatter })))
 const VideoToGif = lazy(() => import('./pages/Tools/VideoToGif').then(m => ({ default: m.VideoToGif })))
+const AudioToMp3 = lazy(() => import('./pages/Tools/AudioToMp3').then(m => ({ default: m.AudioToMp3 })))
 const Me = lazy(() => import('./pages/Me').then(m => ({ default: m.Me })))
 const Game = lazy(() => import('./pages/Game').then(m => ({ default: m.Game })))
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/tools/jsonFormatter" element={<JsonFormatter />} />
             <Route path="/tools/yamlFormatter" element={<YamlFormatter />} />
             <Route path="/tools/videoToGif" element={<VideoToGif />} />
+            <Route path="/tools/audioToMp3" element={<AudioToMp3 />} />
             <Route path="/me" element={<Me />} />
             <Route path="/game" element={<Game />} />
           </Routes>
