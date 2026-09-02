@@ -1,0 +1,7 @@
+import{d as e,s as t,t as n}from"./index-DLUIQ8cX.js";var r=e(t(),1),i=n();function a({title:e=`輸入密碼`,onSubmit:t,onClose:n}){let[a,o]=(0,r.useState)(``),[s,c]=(0,r.useState)(!1);return(0,i.jsxs)(`div`,{style:{position:`fixed`,inset:0,background:`rgba(0,0,0,0.6)`,display:`flex`,alignItems:`center`,justifyContent:`center`,zIndex:9999},onClick:n,children:[(0,i.jsxs)(`form`,{className:`crt-panel px`,onClick:e=>e.stopPropagation(),onSubmit:e=>{e.preventDefault(),t(a.trim())||(c(!0),setTimeout(()=>c(!1),400))},style:{width:260,animation:s?`password-shake 0.4s`:`none`,fontFamily:`'DotGothic16', monospace`},children:[(0,i.jsx)(`div`,{style:{marginBottom:10,fontSize:`0.95em`},children:e}),(0,i.jsx)(`input`,{type:`password`,autoFocus:!0,value:a,onChange:e=>o(e.target.value),style:{width:`100%`,boxSizing:`border-box`,padding:`6px 8px`,marginBottom:10,border:`2px solid var(--crt-ink)`,background:`var(--crt-rose-ink)`}}),s&&(0,i.jsx)(`div`,{style:{color:`var(--crt-red)`,fontSize:`0.8em`,marginBottom:8},children:`密碼不對...`}),(0,i.jsxs)(`div`,{style:{display:`flex`,gap:8,justifyContent:`flex-end`},children:[(0,i.jsx)(`button`,{type:`button`,className:`crt-btn dark`,onClick:n,children:`取消`}),(0,i.jsx)(`button`,{type:`submit`,className:`crt-btn red`,children:`確認`})]})]}),(0,i.jsx)(`style`,{children:`
+        @keyframes password-shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-6px); }
+          75% { transform: translateX(6px); }
+        }
+      `})]})}export{a as t};
