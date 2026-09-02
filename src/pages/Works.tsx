@@ -154,7 +154,7 @@ export const Works: React.FC = () => {
     <div className="w-root" ref={rootRef}>
       <Helmet>
         <title>adi | 作品集</title>
-        <meta name="description" content="adi 的作品 — 每個月解決一個問題。" />
+        <meta name="description" content="adi 的作品 — 每個月開發一個 app。" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -168,7 +168,7 @@ export const Works: React.FC = () => {
 
         <header className="w-hero">
           <p className="w-kicker">作品集 &middot; WORKS</p>
-          <h1 className="w-title">每個月，<br />解決<span>一個問題</span>。</h1>
+          <h1 className="w-title">每個月，<br />開發<span>一個 app</span>。</h1>
         </header>
 
         <div className="w-timeline">
