@@ -7,7 +7,7 @@ type Project = {
   date: string;        // YYYY.MM — sort key + rail badge
   dateLabel: string;   // human label
   url: string;
-  repo: string;
+  image: string;
   summary: string;
   description: string;
   tags: string[];
@@ -22,11 +22,10 @@ const PROJECTS: Project[] = [
     date: '2026.09',
     dateLabel: '2026 年 9 月',
     url: 'https://co2table.com',
-    repo: '~/myrepo/co2table',
-    summary: '自由潛水 CO₂ 耐受表的乾式訓練工具。',
-    description:
-      '設定訓練表、跑計時器、記錄每次成績。無框架前端搭配 Cloudflare Workers API，網頁與 LINE Bot 共用同一份訓練演算法；LINE 版用 LIFF 內嵌計時器，結果寫回 Google Sheet。支援 PWA，可加到主畫面並離線使用。',
-    tags: ['Vanilla JS', 'Cloudflare Workers', 'PWA', 'LINE LIFF', 'Google Apps Script'],
+    image: '/assets/works/co2table.jpg',
+    summary: '自由潛水乾式訓練計時器。',
+    description: '設定 CO₂ / O₂ 耐受表，跑計時、記錄成績。網頁與 LINE Bot 共用一套演算法。',
+    tags: ['Vanilla JS', 'Cloudflare Workers', 'PWA', 'LINE LIFF'],
     role: '設計與開發',
   },
   {
@@ -35,11 +34,11 @@ const PROJECTS: Project[] = [
     date: '2026.08',
     dateLabel: '2026 年 8 月',
     url: 'https://truve-news.vercel.app/',
-    repo: '~/myrepo/truve',
-    summary: '社群驅動的事實查核與新聞聲譽平台。',
+    image: '/assets/works/truve.jpg',
+    summary: 'Community-driven fact-checking and news reputation platform.',
     description:
-      '去中心化的事實查核平台：使用者提出查核、社群投票、篩選佐證證據、處理申訴，全程以 app 內鈴鐺通知。Next.js 前端部署於 Vercel，Go 後端跑在 Google Cloud Run，帳號與資料庫走 Supabase，資料存取層用 sqlc 生成。',
-    tags: ['Next.js', 'Go', 'Supabase', 'Cloud Run', 'sqlc'],
+      'Anyone can open a fact-check, attach evidence with a source URL, and vote. Each contributor carries a reputation score that weights their input.',
+    tags: ['Next.js', 'Go', 'Supabase', 'Cloud Run'],
     role: '設計與開發',
   },
 ];
@@ -94,7 +93,7 @@ export const Works: React.FC = () => {
     <div className="w-root" ref={rootRef}>
       <Helmet>
         <title>adi | 作品集</title>
-        <meta name="description" content="adi 的作品時間軸 — 依開發年月排列的個人專案。" />
+        <meta name="description" content="adi 的作品 — 每個月解決一個問題。" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -107,11 +106,8 @@ export const Works: React.FC = () => {
         <a href="#/" className="w-back">&larr; 回桌面</a>
 
         <header className="w-hero">
-          <p className="w-kicker">SELECTED WORK &middot; 作品集</p>
-          <h1 className="w-title">一條按<span>年月</span>排列<br />的建造時間軸。</h1>
-          <p className="w-lede">
-            每一個專案都標上開發的年份與月份，依時間從新到舊排下來。
-          </p>
+          <p className="w-kicker">作品集 &middot; WORKS</p>
+          <h1 className="w-title">每個月，<br />解決<span>一個問題</span>。</h1>
         </header>
 
         <div className="w-timeline">
@@ -127,20 +123,23 @@ export const Works: React.FC = () => {
                     </div>
 
                     <a className="w-card" href={p.url} target="_blank" rel="noreferrer">
-                      <div className="w-card-head">
-                        <h2 className="w-name">{p.name}</h2>
-                        <span className="w-ext"><ArrowIcon /></span>
+                      <div className="w-shot">
+                        <img src={p.image} alt={`${p.name} 網站截圖`} loading="lazy" />
                       </div>
-                      <p className="w-summary">{p.summary}</p>
-                      <p className="w-desc">{p.description}</p>
-                      <ul className="w-tags">
-                        {p.tags.map(t => <li key={t}>{t}</li>)}
-                      </ul>
-                      <div className="w-meta">
-                        <span>{p.role}</span>
-                        <span className="w-sep" aria-hidden="true">/</span>
-                        <span className="w-repo">{p.repo}</span>
-                        <span className="w-visit">查看網站 <ArrowIcon /></span>
+                      <div className="w-card-body">
+                        <div className="w-card-head">
+                          <h2 className="w-name">{p.name}</h2>
+                          <span className="w-ext"><ArrowIcon /></span>
+                        </div>
+                        <p className="w-summary">{p.summary}</p>
+                        <p className="w-desc">{p.description}</p>
+                        <ul className="w-tags">
+                          {p.tags.map(t => <li key={t}>{t}</li>)}
+                        </ul>
+                        <div className="w-meta">
+                          <span>{p.role}</span>
+                          <span className="w-visit">查看網站 <ArrowIcon /></span>
+                        </div>
                       </div>
                     </a>
                   </li>
@@ -159,8 +158,10 @@ export const Works: React.FC = () => {
         .w-root{
           --bg:#faf9f7; --ink:#111112; --ink-2:#6b6b70; --line:#e3e1dc;
           --card:#ffffff; --accent:#2563eb; --accent-soft:#eef2ff;
-          min-height:100%; width:100%; box-sizing:border-box;
-          background:var(--bg); color:var(--ink); flex:1;
+          /* .stage (CrtTube) is a scrolling flex column; flex:1 there sized this box
+             to one viewport, so its background stopped mid-scroll. Own the height. */
+          min-height:100vh; width:100%; box-sizing:border-box; flex:0 0 auto;
+          background:var(--bg); color:var(--ink);
           font-family:'Archivo','Helvetica Neue',system-ui,-apple-system,'PingFang TC','Noto Sans TC',sans-serif;
           font-size:16px; line-height:1.6;
           -webkit-font-smoothing:antialiased;
@@ -191,11 +192,11 @@ export const Works: React.FC = () => {
           margin:0 0 20px;
         }
         .w-title span{ color:var(--accent); }
-        .w-lede{ font-size:1.02rem; color:var(--ink-2); max-width:46ch; margin:0; }
 
         .w-year{
           font-family:'Space Grotesk',sans-serif; font-weight:700;
           font-size:clamp(3rem,14vw,6rem); line-height:1; letter-spacing:-.04em;
+          font-variant-numeric:tabular-nums;
           color:transparent; -webkit-text-stroke:1.5px var(--line);
           margin:0 0 8px -2px; user-select:none;
         }
@@ -214,6 +215,7 @@ export const Works: React.FC = () => {
           display:flex; align-items:center; gap:10px;
           font-family:'Space Grotesk',sans-serif; font-size:.82rem; font-weight:600;
           letter-spacing:.04em; color:var(--ink-2); margin-bottom:14px;
+          font-variant-numeric:tabular-nums;
         }
         .w-dot{
           position:absolute; left:-7px; width:12px; height:12px; border-radius:50%;
@@ -221,9 +223,8 @@ export const Works: React.FC = () => {
         }
 
         .w-card{
-          display:block; text-decoration:none; color:inherit;
+          display:block; text-decoration:none; color:inherit; overflow:hidden;
           background:var(--card); border:1px solid var(--line); border-radius:14px;
-          padding:clamp(20px,4vw,30px);
           transition:border-color .2s ease, transform .2s ease, box-shadow .2s ease;
         }
         .w-card:hover{
@@ -232,6 +233,17 @@ export const Works: React.FC = () => {
         }
         .w-card:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
 
+        .w-shot{
+          aspect-ratio:16 / 10; overflow:hidden;
+          background:var(--accent-soft); border-bottom:1px solid var(--line);
+        }
+        .w-shot img{
+          width:100%; height:100%; object-fit:cover; object-position:top center;
+          display:block; transition:transform .3s ease;
+        }
+        .w-card:hover .w-shot img{ transform:scale(1.03); }
+
+        .w-card-body{ padding:clamp(20px,4vw,30px); }
         .w-card-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
         .w-name{
           font-family:'Space Grotesk',sans-serif; font-weight:700;
@@ -258,8 +270,6 @@ export const Works: React.FC = () => {
           margin-top:18px; padding-top:16px; border-top:1px solid var(--line);
           font-family:'Space Grotesk',sans-serif; font-size:.76rem; color:var(--ink-2);
         }
-        .w-sep{ opacity:.5; }
-        .w-repo{ font-variant-ligatures:none; }
         .w-visit{
           margin-left:auto; display:inline-flex; align-items:center; gap:5px;
           color:var(--accent); font-weight:600;
