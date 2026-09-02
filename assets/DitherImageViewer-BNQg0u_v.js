@@ -1,4 +1,4 @@
-import{d as e,s as t,t as n}from"./index-CFhBUmPz.js";import{i as r,n as i}from"./styled-components.browser.esm-DPLk0Qcr.js";var a=e(t(),1),o=n(),s=i`
+import{d as e,s as t,t as n}from"./index-CqsiD3AG.js";import{i as r,n as i}from"./styled-components.browser.esm-fv3rrQP7.js";var a=e(t(),1),o=n(),s=i`
   @font-face {
     font-family: 'Cubic';
     src: url('/assets/Cubic_11.ttf') format('truetype');
