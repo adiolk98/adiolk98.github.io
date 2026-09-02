@@ -45,7 +45,12 @@ export default function MacMenuBar({ onOpenApp }) {
     ],
     編輯: [{ label: "Undo", disabled: true }, { label: "Redo", disabled: true }],
     檢視: [{ label: "Zoom In", disabled: true }, { label: "Zoom Out", disabled: true }],
-    前往: [{ label: "Open Terminal", action: () => onOpenApp('terminal') }],
+    前往: [
+      { label: "作品集", action: () => onOpenApp('works') },
+      { label: "Developer Tools", action: () => onOpenApp('tools') },
+      { type: "separator" },
+      { label: "Open Terminal", action: () => onOpenApp('terminal') },
+    ],
     幫助: [{ label: "顯示幫助訊息", action: showHelp }],
   };
 

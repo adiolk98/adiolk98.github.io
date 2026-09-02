@@ -12,6 +12,7 @@ const VideoToGif = lazy(() => import('./pages/Tools/VideoToGif').then(m => ({ de
 const AudioToMp3 = lazy(() => import('./pages/Tools/AudioToMp3').then(m => ({ default: m.AudioToMp3 })))
 const Me = lazy(() => import('./pages/Me').then(m => ({ default: m.Me })))
 const Game = lazy(() => import('./pages/Game').then(m => ({ default: m.Game })))
+const Works = lazy(() => import('./pages/Works').then(m => ({ default: m.Works })))
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/tools/videoToGif" element={<VideoToGif />} />
             <Route path="/tools/audioToMp3" element={<AudioToMp3 />} />
             <Route path="/me" element={<Me />} />
+            <Route path="/works" element={<Works />} />
             <Route path="/game" element={<Game />} />
           </Routes>
         </Suspense>

@@ -143,6 +143,14 @@ const APP_CONFIGS = [
     },
   },
   {
+    id: 'works',
+    name: '作品集',
+    icon: '/assets/app/works.svg',
+    onOpen: () => {
+      window.location.href = '#/works';
+    },
+  },
+  {
     id: 'finder',
     name: 'Finder',
     icon: '/assets/app/finder-folder.svg',
