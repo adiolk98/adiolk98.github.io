@@ -1,0 +1,1 @@
+import{s as e,t}from"./index-DHEfk2Ti.js";e();var n=t(),r=({filePath:e})=>(0,n.jsx)(`div`,{style:{width:`100%`,height:`100%`},children:(0,n.jsx)(`iframe`,{src:e,width:`100%`,height:`100%`,style:{border:`none`},title:`PDF Viewer`})});export{r as default};
