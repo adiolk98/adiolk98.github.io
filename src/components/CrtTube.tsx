@@ -136,8 +136,6 @@ export default function CrtTube({ children }: CrtTubeProps) {
   const scanRef = useRef<HTMLCanvasElement>(null);
   const bmapRef = useRef<SVGFEImageElement>(null);
   const bdispRef = useRef<SVGFEDisplacementMapElement>(null);
-  const blurSoftRef = useRef<SVGFEGaussianBlurElement>(null);
-  const blurHaloRef = useRef<SVGFEGaussianBlurElement>(null);
 
   useEffect(() => {
     const warp = warpRef.current!;
@@ -145,8 +143,11 @@ export default function CrtTube({ children }: CrtTubeProps) {
     const scan = scanRef.current!;
     const bmap = bmapRef.current!;
     const bdisp = bdispRef.current!;
-    const blurSoft = blurSoftRef.current!;
-    const blurHalo = blurHaloRef.current!;
+
+    // 0 = full bulge, 1 = flat; `full` is the map's displacement scale.
+    let full = 0, flat = 0, from = 0, target = 0, dur = 0, t0 = 0, anim = 0;
+    const applyBulge = () => bdisp.setAttribute('scale', String(full * (1 - flat)));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function redraw() {
       drawScanlines(scan);
@@ -159,7 +160,8 @@ export default function CrtTube({ children }: CrtTubeProps) {
       const m = buildBulgeMap(w, h);
       bmap.setAttribute('href', m.url);
       bmap.setAttribute('xlink:href', m.url);
-      bdisp.setAttribute('scale', String(m.scale));
+      full = m.scale;
+      applyBulge();
       warp.style.filter = 'url(#crt-barrel)';
     }
 
@@ -173,34 +175,42 @@ export default function CrtTube({ children }: CrtTubeProps) {
     redraw();
     if (document.fonts?.ready) document.fonts.ready.then(redraw);
 
-    // .stage scrolls live DOM under this filter. The two feGaussianBlur passes
-    // (glow/halo) are the expensive part to re-rasterize every scroll frame;
-    // feDisplacementMap (the actual bulge geometry) is cheap and must stay on,
-    // or toggling it produces a visible snap at the tube's edge where warped
-    // content meets the bezel. So only drop the blur during the scroll
-    // gesture — the curve itself never moves, nothing to jitter — and
-    // restore it once scrolling settles.
+    // The bulge magnifies the centre ~6% and the corners 0%, so content
+    // scrolling through it speeds up in the middle and slows at the edges,
+    // and feDisplacementMap resamples nearest-neighbour, so every horizontal
+    // edge hops a pixel every ~15px of travel. That is the judder — it is not
+    // a frame-rate problem (this filter costs no dropped frames), so throttling
+    // or dropping the blur does nothing for it. Flatten the tube while content
+    // is moving instead, eased both ways: cutting the warp on/off instead makes
+    // the whole picture jump ~6% at each end of the gesture.
     let st: ReturnType<typeof setTimeout>;
-    let scrolling = false;
-    const onScroll = () => {
-      if (!scrolling) {
-        scrolling = true;
-        blurSoft.setAttribute('stdDeviation', '0');
-        blurHalo.setAttribute('stdDeviation', '0');
-      }
-      clearTimeout(st);
-      st = setTimeout(() => {
-        scrolling = false;
-        blurSoft.setAttribute('stdDeviation', '0.25');
-        blurHalo.setAttribute('stdDeviation', '1.4');
-      }, 150);
+    const ease = (x: number) => 1 - (1 - x) ** 3;
+    const glide = (to: number, ms: number) => {
+      if (to === target) return;
+      from = flat;
+      target = to;
+      dur = ms;
+      t0 = performance.now();
+      if (!anim) anim = requestAnimationFrame(step);
     };
-    stage.addEventListener('scroll', onScroll, { passive: true });
+    const onScroll = () => {
+      glide(1, 120);
+      clearTimeout(st);
+      st = setTimeout(() => glide(0, 260), 140);
+    };
+    function step(now: number) {
+      const p = Math.min(1, (now - t0) / dur);
+      flat = from + (target - from) * ease(p);
+      applyBulge();
+      anim = p < 1 ? requestAnimationFrame(step) : 0;
+    }
+    if (!reduceMotion) stage.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       ro.disconnect();
       clearTimeout(t);
       clearTimeout(st);
+      cancelAnimationFrame(anim);
       stage.removeEventListener('scroll', onScroll);
     };
   }, []);
@@ -247,8 +257,8 @@ export default function CrtTube({ children }: CrtTubeProps) {
         <filter id="crt-barrel" x="0" y="0" width="100%" height="100%" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feImage ref={bmapRef} result="m" preserveAspectRatio="none" />
           <feDisplacementMap ref={bdispRef} in="SourceGraphic" in2="m" scale={0} xChannelSelector="R" yChannelSelector="G" result="warped" />
-          <feGaussianBlur ref={blurSoftRef} in="warped" stdDeviation={0.25} result="soft" />
-          <feGaussianBlur ref={blurHaloRef} in="warped" stdDeviation={1.4} result="halo" />
+          <feGaussianBlur in="warped" stdDeviation={0.25} result="soft" />
+          <feGaussianBlur in="warped" stdDeviation={1.4} result="halo" />
           <feComposite in="halo" in2="soft" operator="arithmetic" k1={0} k2={0.12} k3={1} k4={0} />
         </filter>
       </svg>
