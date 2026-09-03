@@ -132,12 +132,14 @@ export default function CrtTube({ children }: CrtTubeProps) {
   const tubeRef = useRef<HTMLDivElement>(null);
   const glassRef = useRef<HTMLDivElement>(null);
   const warpRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const scanRef = useRef<HTMLCanvasElement>(null);
   const bmapRef = useRef<SVGFEImageElement>(null);
   const bdispRef = useRef<SVGFEDisplacementMapElement>(null);
 
   useEffect(() => {
     const warp = warpRef.current!;
+    const stage = stageRef.current!;
     const scan = scanRef.current!;
     const bmap = bmapRef.current!;
     const bdisp = bdispRef.current!;
@@ -167,9 +169,31 @@ export default function CrtTube({ children }: CrtTubeProps) {
     redraw();
     if (document.fonts?.ready) document.fonts.ready.then(redraw);
 
+    // .stage scrolls live DOM under this filter. feDisplacementMap + double
+    // feGaussianBlur isn't GPU-accelerated, so re-rastering it every scroll
+    // frame is what makes the bulge stutter — drop the filter for the
+    // duration of the scroll gesture (content still scrolls, just flat) and
+    // restore it once scrolling settles.
+    let st: ReturnType<typeof setTimeout>;
+    let scrolling = false;
+    const onScroll = () => {
+      if (!scrolling) {
+        scrolling = true;
+        warp.style.filter = 'none';
+      }
+      clearTimeout(st);
+      st = setTimeout(() => {
+        scrolling = false;
+        warp.style.filter = 'url(#crt-barrel)';
+      }, 150);
+    };
+    stage.addEventListener('scroll', onScroll, { passive: true });
+
     return () => {
       ro.disconnect();
       clearTimeout(t);
+      clearTimeout(st);
+      stage.removeEventListener('scroll', onScroll);
     };
   }, []);
 
@@ -225,7 +249,7 @@ export default function CrtTube({ children }: CrtTubeProps) {
         <div className="glass" ref={glassRef}>
           <div className="warp" ref={warpRef}>
             <canvas id="crt-scan" ref={scanRef} />
-            <div className="stage">{children}</div>
+            <div className="stage" ref={stageRef}>{children}</div>
           </div>
           <div className="sheen" />
           <div className="vig" />
