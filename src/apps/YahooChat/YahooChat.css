@@ -1126,3 +1126,30 @@
   transform: scale(0.95);
   border: 1px inset #ece9d8;
 }
+/* 表情符號選單 */
+.toolbar-left { position: relative; }
+
+.emoji-picker {
+  position: absolute;
+  bottom: 26px;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid #7b7b7b;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, .3);
+  z-index: 20;
+}
+
+.emoji-picker button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 3px;
+}
+
+.emoji-picker button:hover { background: #d5e5f7; }

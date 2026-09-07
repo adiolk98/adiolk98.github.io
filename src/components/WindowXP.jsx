@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Rnd } from "react-rnd";
 import styled from "styled-components";
 import { useSound, useClickSound } from "./ClickSoundContext";
@@ -28,6 +28,7 @@ const TitleBarText = styled.div`
 const TitleBarControls = styled.div`
   display: flex;
   align-items: center;
+  gap: 3px;
   button {
     /* Real hit target is bigger than the visual swatch: the tube's barrel filter warps
        what's painted but not where clicks register, so a generous target forgives the
@@ -56,11 +57,12 @@ const TitleBarControls = styled.div`
 `;
 
 const WindowBody = styled.div`
+  /* border-box：不然 padding 會加在 100% 之外，每個 App 的底部都被切掉 20px。 */
+  box-sizing: border-box;
   padding: 10px 8px;
   height: calc(100% - 30px);
   max-height: calc(100% - 30px);
-  overflow-y: hidden;
-  overflow-x: hidden;
+  overflow: auto;
   background: var(--crt-cream);
   &::-webkit-scrollbar {
     width: 8px;
@@ -73,9 +75,21 @@ const WindowBody = styled.div`
   font-size: 12px;
 `;
 
-const CustomWindowFrame = ({ icon, title, children, onClose, onFocus, defaultSize = { x: 100, y: 100, width: 320, height: 200 } }) => {
+const CustomWindowFrame = ({
+  icon,
+  title,
+  children,
+  onClose,
+  onFocus,
+  onMinimize,
+  minimized = false,
+  zIndex = 1,
+  resizable = true,
+  defaultSize = { x: 100, y: 100, width: 320, height: 200 },
+}) => {
   const playClick = useClickSound();
   const { playCancel } = useSound();
+  const [maximized, setMaximized] = useState(false);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
@@ -88,48 +102,68 @@ const CustomWindowFrame = ({ icon, title, children, onClose, onFocus, defaultSiz
       }
     : defaultSize;
 
+  // 最大化：撐滿選單列以下的整個桌面。視窗層的原點已經在選單列下方，所以 y 從 0 算起；
+  // 底部再留給工作列，不然視窗最下面一行（例如 Terminal 的輸入列）會被工作列蓋住。
+  const DOCK_HEIGHT = 46;
+  const maximizedBox = { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight - 30 - DOCK_HEIGHT };
+  const controlled = isMobile
+    ? { position: { x: 10, y: 38 }, size: { width: mobileSize.width, height: mobileSize.height } }
+    : maximized
+      ? { position: { x: maximizedBox.x, y: maximizedBox.y }, size: { width: maximizedBox.width, height: maximizedBox.height } }
+      : {};
+
+  const withSound = (fn, sound) => () => {
+    try {
+      sound();
+    } catch (error) {
+      console.warn('Window control sound error (handled):', error.message);
+    }
+    if (fn) fn();
+  };
+
   return (
     <Rnd
       default={mobileSize}
-      position={isMobile ? { x: 10, y: 38 } : undefined}
-      size={isMobile ? { width: Math.min(window.innerWidth - 20, 380), height: Math.min(window.innerHeight - 80, 520) } : undefined}
+      {...controlled}
       minWidth={200}
       minHeight={100}
-      disableDragging={isMobile}
-      enableResizing={!isMobile}
+      disableDragging={isMobile || maximized}
+      enableResizing={!isMobile && !maximized && resizable}
       dragHandleClassName="window-title-bar"
+      style={{ zIndex, display: minimized ? 'none' : undefined }}
       onDragStart={() => onFocus && onFocus()}
+      onResizeStart={() => onFocus && onFocus()}
     >
       <CustomWindow style={{ width: "100%", height: "100%" }} onMouseDown={() => onFocus && onFocus()}>
-        <TitleBar className="window-title-bar" onMouseDown={() => {
-          try {
-            playClick();
-          } catch (error) {
-            console.warn('Title bar click sound error (handled):', error.message);
-          }
-        }}>
+        <TitleBar
+          className="window-title-bar"
+          onDoubleClick={() => !isMobile && setMaximized(m => !m)}
+          onMouseDown={withSound(null, playClick)}
+        >
           <TitleBarText>
             {icon && (
-              <img 
-                src={icon} 
-                alt="" 
-                width="18" 
-                height="18" 
-                aria-hidden="true" 
-                style={{ marginRight: 8, verticalAlign: 'middle' }} 
+              <img
+                src={icon}
+                alt=""
+                width="18"
+                height="18"
+                aria-hidden="true"
+                style={{ marginRight: 8, verticalAlign: 'middle' }}
               />
             )}
             {title}
           </TitleBarText>
           <TitleBarControls>
-            <button aria-label={`Close ${title} window`} onClick={() => {
-              try {
-                playCancel();
-              } catch (error) {
-                console.warn('Close button sound error (handled):', error.message);
-              }
-              onClose && onClose();
-            }}>✕</button>
+            <button aria-label={`Minimize ${title} window`} onClick={withSound(onMinimize, playClick)}>—</button>
+            {!isMobile && (
+              <button
+                aria-label={`${maximized ? 'Restore' : 'Maximize'} ${title} window`}
+                onClick={withSound(() => setMaximized(m => !m), playClick)}
+              >
+                {maximized ? '❐' : '☐'}
+              </button>
+            )}
+            <button aria-label={`Close ${title} window`} onClick={withSound(onClose, playCancel)}>✕</button>
           </TitleBarControls>
         </TitleBar>
         <WindowBody>
@@ -140,4 +174,4 @@ const CustomWindowFrame = ({ icon, title, children, onClose, onFocus, defaultSiz
   );
 };
 
-export default CustomWindowFrame; 
+export default CustomWindowFrame;

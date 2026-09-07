@@ -1,16 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 
-// 匯入 8-bit 字型
+// 只註冊字型，不要去改 body/*：那會把整個桌面的字型一起換掉。
 const FontStyle = createGlobalStyle`
   @font-face {
     font-family: 'Cubic';
     src: url('/assets/Cubic_11.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
-  }
-  body, * {
-    font-family: 'Cubic', 'monospace', Arial, sans-serif !important;
   }
 `;
 
@@ -28,8 +25,10 @@ const ditherPattern = `
 const PlayerWrapper = styled.div`
   background: #fff;
   border: 3px solid #000;
-  width: 360px;
-  height: 280px;
+  font-family: 'Cubic', monospace;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   user-select: none;
@@ -54,7 +53,7 @@ const PlayerWrapper = styled.div`
 const DisplayPanel = styled.div`
   background: #000;
   border: 3px inset #c0c0c0;
-  height: 80px;
+  flex: 0 0 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -83,7 +82,7 @@ const DisplayText = styled.div`
   letter-spacing: 1px;
   white-space: nowrap;
   overflow: hidden;
-  width: 320px;
+  width: 90%;
   text-overflow: ellipsis;
   margin-bottom: 2px;
   position: relative;
@@ -169,10 +168,12 @@ const ModeBtn = styled.button`
 
 const ControlPanel = styled.div`
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-start;
+  gap: 2px;
   background: #fff;
   padding: 8px;
   position: relative;
@@ -237,7 +238,7 @@ const ControlButton = styled.button`
 `;
 
 const ProgressBarWrapper = styled.div`
-  width: 320px;
+  width: 92%;
   height: 12px;
   background: #000;
   border: 2px inset #c0c0c0;
@@ -277,6 +278,36 @@ const VolumeWrapper = styled.div`
   z-index: 1;
 `;
 
+const Playlist = styled.div`
+  flex: 1;
+  /* ControlPanel 是 align-items:center 的直向 flex，不 stretch 的話清單只會有內容寬度。 */
+  align-self: stretch;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 4px;
+  border: 2px inset #c0c0c0;
+  background: #000;
+  position: relative;
+  z-index: 1;
+`;
+
+const PlaylistItem = styled.button`
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 6px;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Cubic', monospace;
+  font-size: 10px;
+  background: ${props => (props.$current ? '#0f0' : 'transparent')};
+  color: ${props => (props.$current ? '#000' : '#0f0')};
+
+  &:hover { background: ${props => (props.$current ? '#0f0' : '#032003')}; }
+`;
+
 const VolumeBar = styled.input`
   width: 60px;
   height: 6px;
@@ -308,6 +339,8 @@ const MP3Player = () => {
   const [playMode, setPlayMode] = useState('normal'); // 'normal', 'loop', 'random'
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [visualizerData, setVisualizerData] = useState(Array(16).fill(0));
+  const [showPlaylist, setShowPlaylist] = useState(true);
+  const lastVolume = useRef(0.7);
   const audioRef = useRef(null);
 
   const currentSong = songList[currentSongIndex];
@@ -389,13 +422,21 @@ const MP3Player = () => {
     setCurrentSongIndex(index);
     setIsPlaying(true);
   };
+  // currentTarget：點在綠色進度條上時 e.target 是內層的 fill，量到的寬度會是錯的。
   const onProgressBarClick = (e) => {
-    const rect = e.target.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    const seekTime = percent * duration;
+    const seekTime = Math.min(Math.max(percent, 0), 1) * duration;
+    if (!Number.isFinite(seekTime)) return;
     audioRef.current.currentTime = seekTime;
     setCurrentTime(seekTime);
   };
+
+  const toggleMute = () => setVolume(v => {
+    if (v === 0) return lastVolume.current || 0.7;
+    lastVolume.current = v;
+    return 0;
+  });
   
   const togglePlayMode = () => {
     const modes = ['normal', 'loop', 'random'];
@@ -447,8 +488,15 @@ const MP3Player = () => {
             <ModeBtn onClick={toggleVisualizer}>
               {showVisualizer ? '█' : '▢'}
             </ModeBtn>
-            <ModeBtn onClick={() => setVolume(v => v === 0 ? 0.7 : 0)}>
+            <ModeBtn onClick={toggleMute} title={volume === 0 ? '取消靜音' : '靜音'}>
               {volume === 0 ? '🔇' : '🔊'}
+            </ModeBtn>
+            <ModeBtn
+              className={showPlaylist ? 'active' : ''}
+              onClick={() => setShowPlaylist(p => !p)}
+              title="播放清單"
+            >
+              ♫
             </ModeBtn>
           </ModePanel>
           
@@ -458,9 +506,6 @@ const MP3Player = () => {
               {isPlaying ? '■' : '►'}
             </ControlButton>
             <ControlButton onClick={playNext}>►</ControlButton>
-            <ControlButton onClick={() => selectSong((currentSongIndex + 1) % songList.length)}>
-              ♫
-            </ControlButton>
           </Controls>
           
           <ProgressBarWrapper onClick={onProgressBarClick}>
@@ -482,20 +527,27 @@ const MP3Player = () => {
           <div style={{ fontSize: 10, color: '#000', textAlign: 'center', marginTop: 4 }}>
             Track {currentSongIndex + 1}/{songList.length} | {Math.round(volume * 100)}%
           </div>
+
+          {showPlaylist && (
+            <Playlist>
+              {songList.map((song, i) => (
+                <PlaylistItem
+                  key={song.name}
+                  $current={i === currentSongIndex}
+                  onClick={() => selectSong(i)}
+                  title={song.name}
+                >
+                  <span>{String(i + 1).padStart(2, '0')}. {song.name}</span>
+                  <span>{i === currentSongIndex && isPlaying ? '►' : ''}</span>
+                </PlaylistItem>
+              ))}
+            </Playlist>
+          )}
           
           <audio
             ref={audioRef}
             src={currentSong.path}
-            onEnded={playMode === 'loop' ? () => {
-              try {
-                const playPromise = audioRef.current.play();
-                if (playPromise !== undefined) {
-                  playPromise.catch(e => console.warn('Audio play failed (handled):', e.message));
-                }
-              } catch (error) {
-                console.warn('Audio play sync error (handled):', error.message);
-              }
-            } : playNext}
+            onEnded={playMode === 'loop' ? undefined : playNext}
             loop={playMode === 'loop'}
           />
         </ControlPanel>

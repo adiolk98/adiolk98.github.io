@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 
-const APP_STORE_URL = 'https://apps.apple.com/tw/app/adi-portfolio/id1234567890';
+// 原本這裡是一個假的 App Store 連結（id1234567890），點下去只會開到 404 的頁面。
+// 在真的上架之前，就在視窗裡誠實地講一聲，不要把人丟到死連結。
+const REPO_URL = 'https://github.com/adiolk98/adiolk98.github.io';
 
 export default function OpenAppStore() {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -18,9 +21,7 @@ export default function OpenAppStore() {
     setIsHovered(false);
   };
 
-  const handleOpen = () => {
-    window.open(APP_STORE_URL, '_blank', 'noopener,noreferrer');
-  };
+  const handleOpen = () => setShowDialog(true);
 
   return (
     <div style={{
@@ -174,6 +175,49 @@ export default function OpenAppStore() {
       >
         [ PRESS START ]
       </button>
+
+      {showDialog && (
+        <div
+          onClick={() => setShowDialog(false)}
+          style={{
+            position: 'absolute', inset: 0, zIndex: 5, background: 'rgba(5,5,15,.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#18182c', border: '3px solid #fff', boxShadow: '6px 6px 0 #000',
+              padding: 16, textAlign: 'center', fontSize: 9, lineHeight: 1.8, maxWidth: 300
+            }}
+          >
+            <div style={{ color: '#f43f5e', marginBottom: 10 }}>NOT ON THE STORE YET</div>
+            <div style={{ color: '#e2e8f0', marginBottom: 14 }}>
+              這個桌面還沒上架 App Store，<br />不過原始碼是公開的。
+            </div>
+            <button
+              onClick={() => window.open(REPO_URL, '_blank', 'noopener,noreferrer')}
+              style={{
+                background: '#7c3aed', color: '#fff', border: '2px solid #fff',
+                boxShadow: '3px 3px 0 #000', padding: '8px 12px', fontSize: 9,
+                fontFamily: 'inherit', cursor: 'pointer', marginRight: 8
+              }}
+            >
+              VIEW SOURCE
+            </button>
+            <button
+              onClick={() => setShowDialog(false)}
+              style={{
+                background: '#334155', color: '#fff', border: '2px solid #fff',
+                boxShadow: '3px 3px 0 #000', padding: '8px 12px', fontSize: 9,
+                fontFamily: 'inherit', cursor: 'pointer'
+              }}
+            >
+              CLOSE
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer Text */}
       <div style={{

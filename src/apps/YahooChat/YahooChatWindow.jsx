@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { loadMessages, appendMessage, clearRoom, subscribe } from './chatStore';
 
 // Yahoo即時通經典功能
 const INSTANT_FEATURES = {
@@ -9,67 +10,42 @@ const INSTANT_FEATURES = {
   '/hug': '給你一個抱抱 🤗'
 };
 
+const EMOJIS = ['😊', '😂', '😭', '😎', '👍', '🙏', '🔥', '💀', '🎉', '❤️', '🐱', '☕'];
+
 // 聊天視窗組件 - 作為彈出視窗
 function YahooChatWindow({ room, username, onClose }) {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => loadMessages(room.id));
   const [inputText, setInputText] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
+  const [storageOk, setStorageOk] = useState(true);
   const [isShaking, setIsShaking] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
+  const [showEmojis, setShowEmojis] = useState(false);
   const messagesEndRef = useRef(null);
-  const fetchIntervalRef = useRef(null);
+  const inputRef = useRef(null);
   const windowRef = useRef(null);
 
-  // 連接狀態管理
+  // 換聊天室時重新載入，並訂閱其他分頁的寫入
   useEffect(() => {
-    setIsConnected(true);
-    fetchMessages();
-    
-    // 每2秒刷新一次訊息
-    fetchIntervalRef.current = setInterval(fetchMessages, 2000);
-    
-    return () => {
-      if (fetchIntervalRef.current) {
-        clearInterval(fetchIntervalRef.current);
-      }
-    };
+    setMessages(loadMessages(room.id));
+    return subscribe(room.id, setMessages);
   }, [room.id]);
 
-  // 從server獲取訊息
-  const fetchMessages = async () => {
-    try {
-      const response = await fetch(`/api/chat/messages?groupId=${room.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data);
-      }
-    } catch (error) {
-      console.error('獲取訊息失敗:', error);
-      setIsConnected(false);
-    }
+  const refresh = () => setMessages(loadMessages(room.id));
+
+  const sendMessage = (text) => {
+    const next = appendMessage(room.id, {
+      user: username,
+      text,
+      timestamp: new Date().toISOString(),
+    });
+    if (next) setMessages(next);
+    setStorageOk(Boolean(next));
   };
 
-  // 發送訊息到server
-  const sendMessage = async (text) => {
-    try {
-      await fetch('/api/chat/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user: username,
-          text: text,
-          groupId: room.id,
-          timestamp: new Date().toISOString() // 添加完整時間戳記
-        }),
-      });
-      // 發送後立即刷新訊息
-      setTimeout(fetchMessages, 100);
-    } catch (error) {
-      console.error('發送訊息失敗:', error);
-      setIsConnected(false);
-    }
+  const insertEmoji = (emoji) => {
+    setInputText(prev => prev + emoji);
+    setShowEmojis(false);
+    inputRef.current?.focus();
   };
 
   const handleSend = () => {
@@ -135,7 +111,6 @@ function YahooChatWindow({ room, username, onClose }) {
           {room.icon} {room.name} - Yahoo! 即時通
         </span>
         <div className="titlebar-buttons">
-          <button className="titlebar-btn minimize">_</button>
           <button className="titlebar-btn close" onClick={onClose}>×</button>
         </div>
       </div>
@@ -144,7 +119,16 @@ function YahooChatWindow({ room, username, onClose }) {
       <div className="chat-popup-messages">
         <div className="messages-header">
           <span>{room.description}</span>
-          <button onClick={fetchMessages} className="refresh-btn">🔄</button>
+          <div>
+            <button onClick={refresh} className="refresh-btn" title="重新整理">🔄</button>
+            <button
+              onClick={() => setMessages(clearRoom(room.id))}
+              className="refresh-btn"
+              title="清空這個聊天室"
+            >
+              🧹
+            </button>
+          </div>
         </div>
         
         <div className="messages-content">
@@ -175,16 +159,27 @@ function YahooChatWindow({ room, username, onClose }) {
       {/* 工具列 */}
       <div className="chat-popup-toolbar">
         <div className="toolbar-left">
-          <button className="chat-btn">A</button>
           <button className="chat-btn" onClick={handleDingDongShake} title="叮咚！有人在家嗎？(搖晃視窗)">
             🔔
           </button>
-          <button className="chat-btn">🎨</button>
-          <button className="chat-btn">😊</button>
+          <button
+            className="chat-btn"
+            onClick={() => setShowEmojis(v => !v)}
+            title="表情符號"
+          >
+            😊
+          </button>
+          {showEmojis && (
+            <div className="emoji-picker">
+              {EMOJIS.map(emoji => (
+                <button key={emoji} onClick={() => insertEmoji(emoji)}>{emoji}</button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="toolbar-right">
-          <span className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-            {isConnected ? '🟢 已連線' : '🔴 未連線'}
+          <span className={`connection-status ${storageOk ? 'connected' : 'disconnected'}`}>
+            {storageOk ? '🟢 本機模式' : '🔴 無法儲存'}
           </span>
         </div>
       </div>
@@ -193,6 +188,7 @@ function YahooChatWindow({ room, username, onClose }) {
       <div className="chat-popup-input">
         <div className="input-container">
           <textarea
+            ref={inputRef}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleKeyPress}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 
 
 const VSCodeContainer = styled.div`
@@ -175,15 +175,17 @@ const EditorContent = styled.div`
 `;
 
 const LineNumbers = styled.div`
-  width: 50px;
+  flex: 0 0 50px;
   background-color: #1e1e1e;
   color: #858585;
-  font-size: 8px;
+  /* 字級與 line-height 必須跟 TextArea 一致，行號才會對齊；捲動由 onScroll 同步。 */
+  font-size: 10px;
   font-family: monospace;
   line-height: 14px;
   padding: 10px 8px;
   text-align: right;
   user-select: none;
+  overflow: hidden;
   border-right: 1px solid #3e3e42;
 `;
 
@@ -436,12 +438,39 @@ const PreviewPanel = styled.div`
   }
 `;
 
+const WELCOME_FILE = {
+  id: 'welcome',
+  name: 'welcome.md',
+  content: `# VSCode Editor
+
+這是一個可以真的用的編輯器：
+
+- \`Ctrl/Cmd + S\` 儲存（內容存在瀏覽器 localStorage）
+- \`Tab\` 插入縮排，不會跳走焦點
+- 左側 ➕ 新增檔案、👁️ 預覽 Markdown
+- 打字會自動存檔，重新整理不會不見
+
+開始寫點什麼吧。
+`,
+  isModified: false,
+};
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 const VSCodeTextEditor = () => {
-  const [files, setFiles] = useState([]);
-  const [activeFileId, setActiveFileId] = useState('welcome');
+  // 一開啟就要有檔案可以打字：原本是空陣列＋不存在的 activeFileId，
+  // 使用者按鍵盤完全沒有反應。
+  const [files, setFiles] = useState([WELCOME_FILE]);
+  const [activeFileId, setActiveFileId] = useState(WELCOME_FILE.id);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [previewMode, setPreviewMode] = useState(false);
   const textareaRef = useRef(null);
+  const lineNumbersRef = useRef(null);
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
 
   const activeFile = files.find(f => f.id === activeFileId);
@@ -449,18 +478,29 @@ const VSCodeTextEditor = () => {
   // 從 localStorage 載入資料
   useEffect(() => {
     const savedFiles = localStorage.getItem('vscode-editor-files');
-    if (savedFiles) {
-      try {
-        const parsedFiles = JSON.parse(savedFiles);
+    if (!savedFiles) return;
+    try {
+      const parsedFiles = JSON.parse(savedFiles);
+      if (Array.isArray(parsedFiles) && parsedFiles.length > 0) {
         setFiles(parsedFiles);
-        if (parsedFiles.length > 0) {
-          setActiveFileId(parsedFiles[0].id);
-        }
-      } catch (e) {
-        console.error('Failed to load files from localStorage:', e);
+        setActiveFileId(parsedFiles[0].id);
       }
+    } catch (e) {
+      console.error('Failed to load files from localStorage:', e);
     }
   }, []);
+
+  // 自動存檔：真的編輯器不會因為忘記按儲存就把東西弄丟。
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem('vscode-editor-files', JSON.stringify(files));
+      } catch (e) {
+        console.warn('Autosave failed (handled):', e.message);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [files]);
 
 
   const handleTextChange = (e) => {
@@ -497,9 +537,11 @@ const VSCodeTextEditor = () => {
 
   const createNewFile = () => {
     const newFileId = `file_${Date.now()}`;
+    let n = files.length;
+    while (files.some(f => f.name === `untitled_${n}.md`)) n += 1;
     const newFile = {
       id: newFileId,
-      name: `untitled_${files.length}.md`,
+      name: `untitled_${n}.md`,
       content: '',
       isModified: false
     };
@@ -512,21 +554,47 @@ const VSCodeTextEditor = () => {
   const closeFile = (fileId, e) => {
     e.stopPropagation();
     const updatedFiles = files.filter(f => f.id !== fileId);
-    setFiles(updatedFiles);
-    
-    if (activeFileId === fileId && updatedFiles.length > 0) {
-      setActiveFileId(updatedFiles[0].id);
+    // 關掉最後一個分頁時補一個空白檔，不然編輯區會變成打字沒反應的死畫面。
+    if (updatedFiles.length === 0) {
+      const blank = { id: `file_${Date.now()}`, name: 'untitled.md', content: '', isModified: false };
+      setFiles([blank]);
+      setActiveFileId(blank.id);
+      return;
     }
+    setFiles(updatedFiles);
+    if (activeFileId === fileId) setActiveFileId(updatedFiles[0].id);
   };
 
   const saveFile = () => {
-    setFiles(files.map(file => 
-      file.id === activeFileId 
-        ? { ...file, isModified: false }
-        : file
-    ));
-    // 手動儲存到 localStorage
-    localStorage.setItem('vscode-editor-files', JSON.stringify(files));
+    // 先算出要存的內容再一起寫進去，不然存到 localStorage 的會是上一輪的舊狀態。
+    const saved = files.map(file => (file.id === activeFileId ? { ...file, isModified: false } : file));
+    setFiles(saved);
+    try {
+      localStorage.setItem('vscode-editor-files', JSON.stringify(saved));
+    } catch (e) {
+      console.warn('Save failed (handled):', e.message);
+    }
+  };
+
+  // Ctrl/Cmd+S 儲存、Tab 插入縮排（預設 Tab 會把焦點移走，在編輯器裡很反直覺）。
+  const handleEditorKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveFile();
+      return;
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const el = e.target;
+      const { selectionStart, selectionEnd, value } = el;
+      const next = `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`;
+      setFiles(prev => prev.map(file =>
+        file.id === activeFileId ? { ...file, content: next, isModified: true } : file
+      ));
+      requestAnimationFrame(() => {
+        el.selectionStart = el.selectionEnd = selectionStart + 2;
+      });
+    }
   };
   
   const getFileLanguage = (fileName) => {
@@ -556,8 +624,10 @@ const VSCodeTextEditor = () => {
   // 簡單的 Markdown 渲染器
   const renderMarkdown = (content) => {
     if (!content) return '';
-    
-    let html = content
+
+    // 先跳脫 HTML：預覽是用 dangerouslySetInnerHTML 塞進去的，
+    // 沒跳脫的話文件裡的 <script> 會真的被執行。
+    let html = escapeHtml(content)
       // Code blocks (處理在其他替換之前)
       .replace(/```([\w+]*)\s*\n([\s\S]*?)\n```/g, '<pre><code>$2</code></pre>')
       .replace(/```([\w+]*)\s*([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
@@ -657,7 +727,7 @@ const VSCodeTextEditor = () => {
           <EditorContent>
             {!previewMode && (
               <>
-                <LineNumbers>
+                <LineNumbers ref={lineNumbersRef}>
                   {renderLineNumbers()}
                 </LineNumbers>
                 <TextArea
@@ -666,6 +736,10 @@ const VSCodeTextEditor = () => {
                   onChange={handleTextChange}
                   onClick={handleTextareaClick}
                   onKeyUp={handleKeyUp}
+                  onKeyDown={handleEditorKeyDown}
+                  onScroll={(e) => {
+                    if (lineNumbersRef.current) lineNumbersRef.current.scrollTop = e.target.scrollTop;
+                  }}
                   placeholder="開始輸入程式碼..."
                   spellCheck={false}
                   autoComplete="off"

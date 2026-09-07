@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useFileSystem } from '../FileSystemContext';
 
 function TerminalOutput({ line, onFadeOut, fadingOut }) {
   const [fadeClass, setFadeClass] = useState('fade-in');
-  const { currentPath } = useFileSystem();
 
   useEffect(() => {
     // 淡入動畫結束後移除 class
@@ -23,7 +21,7 @@ function TerminalOutput({ line, onFadeOut, fadingOut }) {
   }, [fadingOut]);
 
   if (line.type === 'input') {
-    return <div className={`terminal-line ${fadeClass}`}><span className="terminal-prompt">{currentPath.join('/')} </span> {line.value}</div>;
+    return <div className={`terminal-line ${fadeClass}`}><span className="terminal-prompt">{line.cwd || '/'} </span> {line.value}</div>;
   }
   return <div className={`terminal-line ${fadeClass}`}>{line.value}</div>;
 }

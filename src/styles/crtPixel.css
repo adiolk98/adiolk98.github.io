@@ -123,3 +123,18 @@
 .crt-dlg .rule { height: .2em; background: var(--crt-line); margin: .5em -1em .8em; }
 .crt-dlg p { font-size: 1.05em; line-height: 1.7; margin: 0 0 1.1em; }
 .crt-dlg .kw { font-style: normal; color: var(--crt-red-lo); padding: 0 .25em; }
+
+/* ↑↑↓↓←→←→BA 的獎品：整個桌面翻一圈。
+   放在這裡而不是 createGlobalStyle——styled-components 沒有把這段 @keyframes 送進頁面。 */
+.desktop-barrel-roll {
+  animation: desktop-roll 1.4s ease-in-out;
+}
+
+@keyframes desktop-roll {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-barrel-roll { animation: none; }
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFileSystem } from '../FileSystemContext';
 
-function TerminalInput({ onCommand, onHistoryNav, inputRef }) {
+function TerminalInput({ onCommand, onHistoryNav, onComplete, onInterrupt, inputRef }) {
   const [input, setInput] = useState('');
   const { currentPath } = useFileSystem();
 
@@ -23,6 +23,13 @@ function TerminalInput({ onCommand, onHistoryNav, inputRef }) {
     } else if (e.key === 'ArrowDown') {
       setInput(onHistoryNav('down'));
       e.preventDefault();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      if (input.trim()) setInput(onComplete(input));
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      onInterrupt(input);
+      setInput('');
     }
   };
 

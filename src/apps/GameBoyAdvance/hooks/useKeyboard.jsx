@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { GAME_STATES } from '../styles/constants';
 
+// targetRef：綁在 GBA 機身上而不是 window，不然桌面上其他 App
+// （Terminal、編輯器）打字時方向鍵和 Enter 也會被這台掌機吃掉。
 export const useKeyboard = ({
   gameState,
   movePlayer,
@@ -9,7 +11,9 @@ export const useKeyboard = ({
   interactWithComputer,
   goToWorld,
   setGameRunning,
-  nearComputer
+  nearComputer,
+  onStart,
+  targetRef
 }) => {
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -51,7 +55,9 @@ export const useKeyboard = ({
         case 'enter':
         case ' ':
         case 'z':
-          if (gameState === GAME_STATES.WORLD && nearComputer) {
+          if (gameState === GAME_STATES.PRESS_START) {
+            if (onStart) onStart();
+          } else if (gameState === GAME_STATES.WORLD && nearComputer) {
             interactWithComputer();
           }
           break;
@@ -67,9 +73,11 @@ export const useKeyboard = ({
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
+    const target = targetRef?.current;
+    if (!target) return;
+    target.addEventListener('keydown', handleKeyPress);
     return () => {
-      window.removeEventListener('keydown', handleKeyPress);
+      target.removeEventListener('keydown', handleKeyPress);
     };
-  }, [gameState, snakeDirection, nearComputer, movePlayer, setSnakeDirection, interactWithComputer, goToWorld, setGameRunning]);
+  }, [gameState, snakeDirection, nearComputer, movePlayer, setSnakeDirection, interactWithComputer, goToWorld, setGameRunning, onStart, targetRef]);
 };

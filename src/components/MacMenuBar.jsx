@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import DropdownMenu from "./DropdownMenu";
 
-export default function MacMenuBar({ onOpenApp }) {
+export default function MacMenuBar({ onOpenApp, onCloseActive }) {
   const [now, setNow] = useState(new Date());
+  const [notice, setNotice] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const menuBarRef = useRef(null);
@@ -23,25 +24,26 @@ export default function MacMenuBar({ onOpenApp }) {
     }
   };
 
-  const showHelp = () => {
-    alert("這是一個自訂的幫助訊息！");
-  };
+  // 用桌面自己的對話框，不要用瀏覽器原生 alert——那會跳出整個 CRT 畫面。
+  const showHelp = () => setNotice(
+    '雙擊桌面圖示開啟 App。\n視窗標題列可拖曳，右上角有縮小／最大化／關閉，\n下方工作列可以切換已開啟的視窗。'
+  );
 
   const menuConfig = {
     icon: [
-        { label: "關於這個 App", action: () => onOpenApp('about') },
+        { label: "關於這個 App", action: () => onOpenApp('wiki') },
         { type: "separator" },
         { label: "設定...", disabled: true },
-        { label: "登出", disabled: true, action: () => alert("登出功能待開發！") },
+        { label: "登出", disabled: true },
     ],
     檔案: [
       { label: "New Finder Window", action: () => onOpenApp('finder') },
       { label: "New Terminal", action: () => onOpenApp('terminal') },
       { type: "separator" },
       { label: "Move to Trash", disabled: true },
-      { label: "Empty Trash...", action: () => alert("垃圾桶已清空！") },
+      { label: "Empty Trash...", action: () => setNotice('垃圾桶已經是空的。') },
       { type: "separator" },
-      { label: "Close", action: () => alert("關閉視窗功能待開發！") },
+      { label: "Close Window", action: () => onCloseActive && onCloseActive() },
     ],
     編輯: [{ label: "Undo", disabled: true }, { label: "Redo", disabled: true }],
     檢視: [{ label: "Zoom In", disabled: true }, { label: "Zoom Out", disabled: true }],
@@ -174,6 +176,26 @@ export default function MacMenuBar({ onOpenApp }) {
           position={menuPosition}
           onClose={closeMenu}
         />
+      )}
+      {notice && (
+        <div
+          onClick={() => setNotice(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+        >
+          <div
+            className="crt-panel px"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: 320, whiteSpace: 'pre-wrap', fontFamily: "'DotGothic16', monospace", fontSize: 13 }}
+          >
+            <div style={{ marginBottom: 12 }}>{notice}</div>
+            <div style={{ textAlign: 'right' }}>
+              <button className="crt-btn red" onClick={() => setNotice(null)}>確定</button>
+            </div>
+          </div>
+        </div>
       )}
       <div style={rightStyle}>
         <span role="img" aria-label="volume">🔊</span>

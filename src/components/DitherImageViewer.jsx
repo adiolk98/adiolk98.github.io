@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 
+// 只註冊字型，不要去改 body/*：那會把整個桌面的字型一起換掉。
 const FontStyle = createGlobalStyle`
   @font-face {
     font-family: 'Cubic';
@@ -8,33 +9,10 @@ const FontStyle = createGlobalStyle`
     font-weight: normal;
     font-style: normal;
   }
-  body, * {
-    font-family: 'Cubic', 'monospace', Arial, sans-serif !important;
-  }
-`;
-
-// 復古相機CCD螢幕風格
-const ccdPattern = `
-  repeating-linear-gradient(
-    45deg,
-    #e0e0e0 0px, #e0e0e0 1px,
-    #f0f0f0 1px, #f0f0f0 2px,
-    #e8e8e8 2px, #e8e8e8 3px,
-    #f8f8f8 3px, #f8f8f8 4px
-  )
-`;
-
-const scanlinePattern = `
-  repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 1px,
-    rgba(0,0,0,0.02) 1px,
-    rgba(0,0,0,0.02) 2px
-  )
 `;
 
 const CameraBody = styled.div`
+  font-family: 'Cubic', monospace;
   background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
   border: 3px solid #333;
   border-radius: 12px;
@@ -472,43 +450,35 @@ const DitherImageViewer = () => {
 
   // Load and validate images from assets/photo directory
   useEffect(() => {
-    const loadImages = async () => {
-      try {
-        setLoading(true);
-        setLoadedCount(0);
-        
-        // Filter out images that actually exist by trying to load them
-        const validImages = [];
-        
-        for (let i = 0; i < allImages.length; i++) {
-          const imageData = allImages[i];
-          try {
-            await new Promise((resolve, reject) => {
-              const img = new Image();
-              img.onload = () => {
-                validImages.push(imageData);
-                setLoadedCount(validImages.length);
-                resolve();
-              };
-              img.onerror = reject;
-              img.src = imageData.path;
-            });
-          } catch (error) {
-            console.warn(`Failed to load image: ${imageData.name}`);
-          }
-        }
-        
-        setImages(validImages.length > 0 ? validImages : allImages);
-      } catch (error) {
-        console.error('Error loading images:', error);
-        setImages(allImages); // Fallback to all images
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadImages();
+    // 平行載入：原本是一張等一張，23 張照片要卡好幾秒才會出現第一張。
+    let cancelled = false;
+    setLoading(true);
+    setLoadedCount(0);
+
+    const probe = (imageData) => new Promise(resolve => {
+      const probeImage = new Image();
+      probeImage.onload = () => resolve(imageData);
+      probeImage.onerror = () => {
+        console.warn(`Failed to load image: ${imageData.name}`);
+        resolve(null);
+      };
+      probeImage.src = imageData.path;
+    }).then(result => {
+      if (!cancelled) setLoadedCount(count => count + 1);
+      return result;
+    });
+
+    Promise.all(allImages.map(probe)).then(results => {
+      if (cancelled) return;
+      const validImages = results.filter(Boolean);
+      setImages(validImages.length > 0 ? validImages : allImages);
+      setLoading(false);
+    });
+
+    return () => { cancelled = true; };
   }, []);
+
+
 
   // Handle individual image loading
   const handleImageLoad = () => {
@@ -557,7 +527,16 @@ const DitherImageViewer = () => {
   return (
     <>
       <FontStyle />
-      <CameraBody>
+      {/* 綁在機身而不是 window：不然別的 App 在打字時方向鍵也會被吃掉。 */}
+      <CameraBody
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') prev();
+          else if (e.key === 'ArrowRight') next();
+          else return;
+          e.preventDefault();
+        }}
+      >
         <CCDStatusBar>
           {loading ? (
             `📡 LOADING: ${loadedCount}/${allImages.length} IMAGES...`
@@ -656,8 +635,8 @@ const DitherImageViewer = () => {
         
         <BtnRow>
           <CameraNavBtn onClick={first} disabled={loading || images.length === 0 || idx === 0} title="First">|◄</CameraNavBtn>
-          <CameraNavBtn onClick={prev} disabled={loading || images.length === 0 || idx === 0} title="Previous">◄</CameraNavBtn>
-          <CameraNavBtn onClick={next} disabled={loading || images.length === 0 || idx === images.length - 1} title="Next">►</CameraNavBtn>
+          <CameraNavBtn onClick={prev} disabled={loading || images.length === 0} title="Previous">◄</CameraNavBtn>
+          <CameraNavBtn onClick={next} disabled={loading || images.length === 0} title="Next">►</CameraNavBtn>
           <CameraNavBtn onClick={last} disabled={loading || images.length === 0 || idx === images.length - 1} title="Last">►|</CameraNavBtn>
         </BtnRow>
       </CameraBody>

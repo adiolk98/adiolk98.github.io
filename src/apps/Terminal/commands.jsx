@@ -1,7 +1,7 @@
 import { useFileSystem } from '../FileSystemContext';
 
 export function useTerminalCommands() {
-  const { ls, cd, mkdir, touch, currentPath } = useFileSystem();
+  const { ls, cd, mkdir, touch, rm, readFile, writeFile, tree, entryNames, currentPath } = useFileSystem();
 
   const commands = {
     help: () =>
@@ -13,7 +13,10 @@ touch [file] - 建立檔案
 pwd - 顯示目前路徑
 rm [檔案] - 刪除檔案
 cat [檔案] - 顯示檔案內容
+write [檔案] [內容] - 寫入檔案
 tree - 顯示目錄樹
+history - 顯示指令紀錄
+（Tab 補完指令與檔名，↑↓ 翻歷史）
 
 whoami - 顯示用戶信息
 neofetch - 顯示系統信息
@@ -58,13 +61,11 @@ hacker - 駭客模式
     },
     mkdir: (args) => {
       if (!args[0]) return '請輸入新資料夾名稱';
-      mkdir(args[0]);
-      return '';
+      return mkdir(args[0]) ? '' : `已存在：${args[0]}`;
     },
     touch: (args) => {
       if (!args[0]) return '請輸入新檔案名稱';
-      touch(args[0]);
-      return '';
+      return touch(args[0]) ? '' : `已存在：${args[0]}`;
     },
     pwd: () => '/' + currentPath.join('/'),
     date: () => new Date().toLocaleString('zh-TW', { 
@@ -130,10 +131,12 @@ hacker - 駭客模式
     calc: (args) => {
       const expression = args.join(' ');
       if (!expression) return '請輸入運算式，例如：calc 2 + 3';
+      // 只留下數字與四則運算符號再交給 Function，避免 direct eval。
+      const safe = expression.replace(/[^0-9+\-*/().\s]/g, '');
       try {
-        const result = eval(expression.replace(/[^0-9+\-*/().\s]/g, ''));
-        return `${expression} = ${result}`;
-      } catch (error) {
+        const result = Function(`"use strict"; return (${safe})`)();
+        return Number.isFinite(result) ? `${expression} = ${result}` : '計算錯誤，請檢查運算式';
+      } catch {
         return '計算錯誤，請檢查運算式';
       }
     },
@@ -210,11 +213,19 @@ hacker - 駭客模式
     },
     rm: (args) => {
       if (!args[0]) return '請指定要刪除的檔案';
-      return `已刪除：${args[0]} (模擬)`;
+      return rm(args[0]) ? '' : `rm: ${args[0]}: 沒有這個檔案或目錄`;
     },
     cat: (args) => {
       if (!args[0]) return '請指定要讀取的檔案';
-      return `檔案內容：${args[0]}\n這是一個模擬的檔案內容。`;
+      const content = readFile(args[0]);
+      if (content === null) return `cat: ${args[0]}: 沒有這個檔案`;
+      return content === '' ? '(空檔案)' : content;
+    },
+    write: (args) => {
+      const [name, ...rest] = args;
+      if (!name) return '用法：write [檔案] [內容]';
+      writeFile(name, rest.join(' '));
+      return '';
     },
     figlet: (args) => {
       const text = args.join(' ') || 'ADI';
@@ -231,9 +242,7 @@ hacker - 駭客模式
     ps: () => {
       return `PID    COMMAND\n1      init\n42     terminal\n1337   node\n9999   react-app\n\n共 4 個進程正在運行`;
     },
-    tree: () => {
-      return `\n📁 目錄樹\n├── 📁 home\n├── 📁 documents\n├── 📁 downloads\n├── 📁 music\n├── 📁 videos\n└── 📁 pictures`;
-    },
+    tree: () => tree(),
     sl: () => {
       return `\n      🚂💨💨💨\n    oooooooooooo\n   oooooooooooooo\n  oooooooooooooooo\n 🚃🚃🚃🚃🚃🚃🚃🚃\n\n嘟嘟～火車開過去了！\n(這是 'ls' 打錯字的經典彩蛋)`;
     },
@@ -248,5 +257,29 @@ hacker - 駭客模式
     return `command not found: ${cmd}`;
   }
 
-  return { handleCommand };
+  const complete = (input) => completeInput(input, Object.keys(commands), entryNames());
+
+  return { handleCommand, complete };
+}
+
+// 補完規則：第一個字補指令，其餘補目前目錄的檔名。回傳 { value, hint }，
+// hint 是有多個候選時要印出來的清單（跟真的 shell 一樣按兩次才列出）。
+export function completeInput(input, commandNames, names) {
+  const parts = input.split(/(\s+)/);
+  const last = parts[parts.length - 1];
+  const isFirstWord = parts.filter(p => p.trim()).length <= 1 && !/\s$/.test(input);
+  const pool = isFirstWord ? commandNames : names;
+  const matches = pool.filter(name => name.startsWith(last) && last !== '');
+  if (matches.length === 0) return { value: input, hint: '' };
+
+  // 補到所有候選的共同前綴為止
+  let prefix = matches[0];
+  for (const match of matches) {
+    while (!match.startsWith(prefix)) prefix = prefix.slice(0, -1);
+  }
+  const value = input.slice(0, input.length - last.length) + prefix;
+  return {
+    value: matches.length === 1 ? `${value} ` : value,
+    hint: matches.length > 1 ? matches.join('  ') : '',
+  };
 }

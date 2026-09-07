@@ -4,10 +4,11 @@
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   color: #e0e0e0;
   border-radius: 12px;
+  /* 跟著視窗大小長，原本寫死 400px，把視窗拉大或最大化都只會露出底色。 */
   height: 100%;
   width: 100%;
-  max-height: 400px;
-  min-height: 400px;
+  min-height: 0;
+  box-sizing: border-box;
   padding-block: 20px;
   padding-inline: 20px;
   box-shadow: 
@@ -45,9 +46,9 @@
 }
 .terminal-output-area {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   margin-bottom: 12px;
-  height: 100%;
   margin-top: 35px;
   padding-right: 8px;
   text-align: left;

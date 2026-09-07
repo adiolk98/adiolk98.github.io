@@ -19,6 +19,12 @@ const VideoBackground = styled.video`
   filter: brightness(0.8) contrast(1.1) saturate(1.2);
 `;
 
+const ColorBackground = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${props => props.src};
+`;
+
 const ImageBackground = styled.div`
   width: 100%;
   height: 100%;
@@ -35,6 +41,7 @@ const DesktopBackground = ({ background }) => {
     <BackgroundContainer>
       {background.type === 'video' && (
         <VideoBackground
+          key={background.src}
           src={background.src}
           autoPlay
           loop
@@ -44,6 +51,9 @@ const DesktopBackground = ({ background }) => {
       )}
       {background.type === 'image' && (
         <ImageBackground src={background.src} />
+      )}
+      {background.type === 'color' && (
+        <ColorBackground src={background.src} />
       )}
     </BackgroundContainer>
   );

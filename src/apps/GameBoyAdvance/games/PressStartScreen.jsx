@@ -1,14 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
+// Enter 由 GameBoyAdvance 的 useKeyboard 統一處理（綁在機身上，不是 window）。
 const PressStartScreen = ({ onStart }) => {
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === 'Enter') onStart();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [onStart]);
-
   return (
     <div
       onClick={onStart}

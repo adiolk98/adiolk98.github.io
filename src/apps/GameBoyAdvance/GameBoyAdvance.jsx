@@ -24,6 +24,12 @@ const GameBoyAdvance = () => {
   // 世界遊戲引用
   const worldGameRef = useRef(null);
   const snakeGameRef = useRef(null);
+  const rootRef = useRef(null);
+
+  // 開啟視窗時把鍵盤焦點交給掌機，這樣按鍵才會進到下面的 useKeyboard。
+  useEffect(() => {
+    rootRef.current?.focus();
+  }, []);
 
   // 玩家移動函數
   const movePlayer = (dx, dy) => {
@@ -90,7 +96,7 @@ const GameBoyAdvance = () => {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div ref={rootRef} tabIndex={-1} style={{ position: 'relative', width: '100%', height: '100%', outline: 'none' }}>
       <SizeController 
         scale={scale} 
         scaleUp={scaleUp} 

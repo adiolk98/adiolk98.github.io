@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import TerminalInput from './TerminalInput';
 import TerminalOutput from './TerminalOutput';
 import { useTerminalCommands } from './commands';
+import { useFileSystem } from '../FileSystemContext';
 import './terminal.css';
 
 function Terminal() {
@@ -23,7 +24,11 @@ Welcome to adi terminal!\nlast login: ${new Date().toLocaleString()}\ntype 'help
   const inputRef = useRef(null);
   const outputAreaRef = useRef(null);
 
-  const { handleCommand } = useTerminalCommands();
+  const { handleCommand, complete } = useTerminalCommands();
+  const { currentPath } = useFileSystem();
+
+  // 指令列印出來的路徑要是「執行當下」的路徑，之後再 cd 也不該回頭改寫歷史。
+  const prompt = () => '/' + currentPath.join('/');
 
   useEffect(() => {
     if (outputAreaRef.current) {
@@ -38,7 +43,7 @@ Welcome to adi terminal!\nlast login: ${new Date().toLocaleString()}\ntype 'help
     }
     
     if (input.trim() === 'history') {
-      setLines(prev => [...prev, { type: 'input', value: input }]);
+      setLines(prev => [...prev, { type: 'input', value: input, cwd: prompt() }]);
       const historyText = history.length > 0 
         ? history.map((cmd, idx) => `${idx + 1}  ${cmd}`).join('\n')
         : '命令歷史為空';
@@ -48,12 +53,31 @@ Welcome to adi terminal!\nlast login: ${new Date().toLocaleString()}\ntype 'help
       return;
     }
     
-    setLines(prev => [...prev, { type: 'input', value: input }]);
+    setLines(prev => [...prev, { type: 'input', value: input, cwd: prompt() }]);
     const output = handleCommand(input, setLines, history);
     if (output) {
       setLines(prev => [...prev, { type: 'output', value: output }]);
     }
     setHistory(prev => [...prev, input]);
+    setHistoryIndex(null);
+  };
+
+  // Tab 補完：唯一候選直接補上，多個候選就像真的 shell 一樣把清單印出來。
+  const onComplete = (input) => {
+    const { value, hint } = complete(input);
+    if (hint) {
+      setLines(prev => [
+        ...prev,
+        { type: 'input', value: input, cwd: prompt() },
+        { type: 'output', value: hint },
+      ]);
+    }
+    return value;
+  };
+
+  // Ctrl+C：印出目前這行然後放棄，不執行。
+  const onInterrupt = (input) => {
+    setLines(prev => [...prev, { type: 'input', value: `${input}^C`, cwd: prompt() }]);
     setHistoryIndex(null);
   };
 
@@ -93,7 +117,13 @@ Welcome to adi terminal!\nlast login: ${new Date().toLocaleString()}\ntype 'help
           />
         ))}
       </div>
-      <TerminalInput onCommand={onCommand} onHistoryNav={onHistoryNav} inputRef={inputRef} />
+      <TerminalInput
+        onCommand={onCommand}
+        onHistoryNav={onHistoryNav}
+        onComplete={onComplete}
+        onInterrupt={onInterrupt}
+        inputRef={inputRef}
+      />
     </div>
   );
 }

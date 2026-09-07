@@ -85,6 +85,9 @@ const GlobalStyle = createGlobalStyle`
     font-display: swap;
   }
   body {
+    /* 這個復古桌面永遠是淺色的。不釘住 color-scheme 的話，使用者的系統在暗色模式時
+       瀏覽器會把 input/button 換成深色 UA 樣式，App 裡沒明寫 color 的控制項就變成白字白底。 */
+    color-scheme: light;
     font-family: 'Cubic_11', 'Tahoma', 'Arial', sans-serif;
     background: #222;
     min-height: 100vh;
@@ -192,27 +195,6 @@ export const CRTBackground = createGlobalStyle`
     background: url('data:image/svg+xml;utf8,<svg width="120" height="120" xmlns="http://www.w3.org/2000/svg"><filter id="n" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2"/></filter><rect width="120" height="120" filter="url(%23n)" opacity="0.18"/></svg>');
     opacity: 0.25;
     mix-blend-mode: screen;
-  }
-`;
-
-// 桌面 icon 容器，讓 icon 自動換行
-export const DesktopIconsContainer = styled.div`
-  position: absolute;
-  top: 60px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  padding: 8px 0 0 16px;
-  z-index: 2;
-  pointer-events: none;
-
-  & > * {
-    pointer-events: auto;
-    margin: 0 24px 8px 0;
-    width: 80px;
   }
 `;
 
