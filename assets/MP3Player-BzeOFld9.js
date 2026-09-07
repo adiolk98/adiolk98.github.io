@@ -1,0 +1,276 @@
+import{d as e,s as t,t as n}from"./index-_VUDyVeM.js";import{i as r,n as i}from"./styled-components.browser.esm-FvqSO9J3.js";var a=e(t(),1),o=n(),s=i`
+  @font-face {
+    font-family: 'Cubic';
+    src: url('/assets/Cubic_11.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+`,c=`
+  repeating-linear-gradient(
+    45deg,
+    #000 0px, #000 1px,
+    #fff 1px, #fff 2px,
+    #000 2px, #000 3px,
+    #fff 3px, #fff 4px
+  )
+`,l=r.div`
+  background: #fff;
+  border: 3px solid #000;
+  font-family: 'Cubic', monospace;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  image-rendering: pixelated;
+  box-shadow: 
+    inset -2px -2px 0 #808080,
+    inset 2px 2px 0 #ffffff;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
+    background: ${c};
+  }
+`,u=r.div`
+  background: #000;
+  border: 3px inset #c0c0c0;
+  flex: 0 0 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  margin: 4px;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+    pointer-events: none;
+    background: ${c};
+    z-index: 0;
+  }
+`,d=r.div`
+  color: #0f0;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Cubic', monospace;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 90%;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 2px #0f0;
+`,f=r.div`
+  color: #0f0;
+  font-size: 10px;
+  font-family: 'Cubic', monospace;
+  text-align: center;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 2px #0f0;
+`,p=r.div`
+  display: flex;
+  align-items: end;
+  gap: 1px;
+  height: 20px;
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+`,m=r.div`
+  width: 2px;
+  background: #0f0;
+  transition: height 0.1s ease;
+  box-shadow: 0 0 2px #0f0;
+`,h=r.div`
+  display: flex;
+  gap: 4px;
+  margin: 8px 0;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+`,g=r.button`
+  width: 24px;
+  height: 18px;
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  color: #000;
+  font-size: 8px;
+  font-family: 'Cubic', monospace;
+  cursor: pointer;
+  transition: none;
+  position: relative;
+  z-index: 1;
+  
+  &:active {
+    border: 2px inset #c0c0c0;
+    background: #a0a0a0;
+  }
+  
+  &:hover {
+    background: #d0d0d0;
+  }
+  
+  &.active {
+    border: 2px inset #c0c0c0;
+    background: #808080;
+    color: #fff;
+  }
+  
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    pointer-events: none;
+    background: ${c};
+    z-index: 0;
+  }
+`,_=r.div`
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  background: #fff;
+  padding: 8px;
+  position: relative;
+  z-index: 1;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    pointer-events: none;
+    background: ${c};
+    z-index: 0;
+  }
+`,v=r.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  position: relative;
+  z-index: 1;
+`,y=r.button`
+  width: 32px;
+  height: 24px;
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  color: #000;
+  font-size: 11px;
+  font-family: 'Cubic', monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: none;
+  position: relative;
+  z-index: 1;
+  image-rendering: pixelated;
+  
+  &:active {
+    border: 2px inset #c0c0c0;
+    background: #a0a0a0;
+  }
+  
+  &:hover {
+    background: #d0d0d0;
+  }
+  
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    pointer-events: none;
+    background: ${c};
+    z-index: 0;
+  }
+`,b=r.div`
+  width: 92%;
+  height: 12px;
+  background: #000;
+  border: 2px inset #c0c0c0;
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+    pointer-events: none;
+    background: ${c};
+    z-index: 0;
+  }
+`,x=r.div`
+  height: 100%;
+  background: #0f0;
+  transition: none;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 2px #0f0;
+`,S=r.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0;
+  position: relative;
+  z-index: 1;
+`,C=r.div`
+  flex: 1;
+  /* ControlPanel 是 align-items:center 的直向 flex，不 stretch 的話清單只會有內容寬度。 */
+  align-self: stretch;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 4px;
+  border: 2px inset #c0c0c0;
+  background: #000;
+  position: relative;
+  z-index: 1;
+`,w=r.button`
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 6px;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Cubic', monospace;
+  font-size: 10px;
+  background: ${e=>e.$current?`#0f0`:`transparent`};
+  color: ${e=>e.$current?`#000`:`#0f0`};
+
+  &:hover { background: ${e=>e.$current?`#0f0`:`#032003`}; }
+`,T=r.input`
+  width: 60px;
+  height: 6px;
+  accent-color: #000;
+  background: #c0c0c0;
+  border: 1px inset #c0c0c0;
+`,E=[{name:`周杰倫-稻香`,path:`/assets/mp3/Jay_chou-1.mp3`},{name:`Save as-tobylane`,path:`/assets/mp3/Save-as-tobylane.mp3`},{name:`錄音_0477（未命名）`,path:`/assets/mp3/Save-as-tobylane.mp3`}];function D(e){if(isNaN(e))return`00:00`;let t=Math.floor(e/60),n=Math.floor(e%60);return`${t.toString().padStart(2,`0`)}:${n.toString().padStart(2,`0`)}`}var O=()=>{let[e,t]=(0,a.useState)(0),[n,r]=(0,a.useState)(!1),[i,c]=(0,a.useState)(0),[O,k]=(0,a.useState)(0),[A,j]=(0,a.useState)(0),[M,N]=(0,a.useState)(.7),[P,F]=(0,a.useState)(`normal`),[I,L]=(0,a.useState)(!0),[R,z]=(0,a.useState)(Array(16).fill(0)),[B,V]=(0,a.useState)(!0),H=(0,a.useRef)(.7),U=(0,a.useRef)(null),W=E[e];(0,a.useEffect)(()=>{if(n&&I){let e=setInterval(()=>{z(e=>e.map(()=>Math.random()*20))},100);return()=>clearInterval(e)}else z(Array(16).fill(0))},[n,I]),(0,a.useEffect)(()=>{try{if(n){let e=U.current.play();e!==void 0&&e.catch(e=>console.warn(`Audio play failed (handled):`,e.message))}else U.current.pause()}catch(e){console.warn(`Audio play sync error (handled):`,e.message)}},[n,e]),(0,a.useEffect)(()=>{let e=U.current,t=()=>{j(e.currentTime),c(e.currentTime/(e.duration||1)*100)},n=()=>{console.error(`Audio loading error`),r(!1)},i=()=>{k(e.duration)};return e.addEventListener(`timeupdate`,t),e.addEventListener(`loadedmetadata`,i),e.addEventListener(`error`,n),()=>{e.removeEventListener(`timeupdate`,t),e.removeEventListener(`loadedmetadata`,i),e.removeEventListener(`error`,n)}},[e]),(0,a.useEffect)(()=>{U.current.volume=M},[M]);let G=()=>r(e=>!e),K=()=>{t(P===`random`?Math.floor(Math.random()*E.length):e=>(e+1)%E.length),r(!0)},q=()=>{t(P===`random`?Math.floor(Math.random()*E.length):e=>(e-1+E.length)%E.length),r(!0)},J=e=>{t(e),r(!0)};return(0,o.jsxs)(o.Fragment,{children:[(0,o.jsx)(s,{}),(0,o.jsxs)(l,{children:[(0,o.jsxs)(u,{children:[(0,o.jsxs)(d,{children:[`♪ `,W.name]}),(0,o.jsxs)(f,{children:[D(A),` / `,D(O),` `,n?`►`:`■`,` | `,P.toUpperCase()]}),I&&(0,o.jsx)(p,{children:R.map((e,t)=>(0,o.jsx)(m,{style:{height:`${e}px`}},t))})]}),(0,o.jsxs)(_,{children:[(0,o.jsxs)(h,{children:[(0,o.jsx)(g,{className:P===`normal`?`active`:``,onClick:()=>{let e=[`normal`,`loop`,`random`],t=e.indexOf(P);F(e[(t+1)%e.length])},title:`Mode: ${P}`,children:(()=>{switch(P){case`loop`:return`↻`;case`random`:return`⚡`;default:return`→`}})()}),(0,o.jsx)(g,{onClick:()=>{L(e=>!e)},children:I?`█`:`▢`}),(0,o.jsx)(g,{onClick:()=>N(e=>e===0?H.current||.7:(H.current=e,0)),title:M===0?`取消靜音`:`靜音`,children:M===0?`🔇`:`🔊`}),(0,o.jsx)(g,{className:B?`active`:``,onClick:()=>V(e=>!e),title:`播放清單`,children:`♫`})]}),(0,o.jsxs)(v,{children:[(0,o.jsx)(y,{onClick:q,children:`◄`}),(0,o.jsx)(y,{onClick:G,children:n?`■`:`►`}),(0,o.jsx)(y,{onClick:K,children:`►`})]}),(0,o.jsx)(b,{onClick:e=>{let t=e.currentTarget.getBoundingClientRect(),n=(e.clientX-t.left)/t.width,r=Math.min(Math.max(n,0),1)*O;Number.isFinite(r)&&(U.current.currentTime=r,j(r))},children:(0,o.jsx)(x,{style:{width:`${i}%`}})}),(0,o.jsxs)(S,{children:[(0,o.jsx)(`span`,{style:{color:`#000`,fontSize:10},children:`VOL`}),(0,o.jsx)(T,{type:`range`,min:`0`,max:`1`,step:`0.01`,value:M,onChange:e=>N(Number(e.target.value))})]}),(0,o.jsxs)(`div`,{style:{fontSize:10,color:`#000`,textAlign:`center`,marginTop:4},children:[`Track `,e+1,`/`,E.length,` | `,Math.round(M*100),`%`]}),B&&(0,o.jsx)(C,{children:E.map((t,r)=>(0,o.jsxs)(w,{$current:r===e,onClick:()=>J(r),title:t.name,children:[(0,o.jsxs)(`span`,{children:[String(r+1).padStart(2,`0`),`. `,t.name]}),(0,o.jsx)(`span`,{children:r===e&&n?`►`:``})]},t.name))}),(0,o.jsx)(`audio`,{ref:U,src:W.path,onEnded:P===`loop`?void 0:K,loop:P===`loop`})]})]})]})};export{O as default};
