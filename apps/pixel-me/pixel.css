@@ -1,0 +1,214 @@
+/* ============================================================
+   pixel-snapper-ui — dark pixel-art interface system
+   Drop in, then use the .px-* classes. Tokens are all CSS vars.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Silkscreen:wght@400;700&display=swap');
+
+:root{
+  /* grid unit — every size is a multiple of this */
+  --px: 2px;
+
+  /* surfaces (dark, low-chroma) */
+  --c-bg:        #000000;
+  --c-panel:     #1e1f22;
+  --c-panel-2:   #2b2d31;
+  --c-line:      #404248;
+  --c-bevel-hi:  #4b4d55;
+  --c-bevel-lo:  #131417;
+
+  /* ink */
+  --c-text:      #f1f2f3;
+  --c-dim:       #8a8d94;
+  --c-faint:     #5b5b5b;
+
+  /* one accent, one danger. no gradients. */
+  --c-accent:    #5964ea;
+  --c-accent-lo: #3a43b0;
+  --c-danger:    #e05252;
+
+  --font-ui:      'Silkscreen', ui-monospace, monospace;
+  --font-display: 'Pixelify Sans', 'Silkscreen', monospace;
+  /* prose + CJK: pixel fonts have no CJK and get unreadable past a sentence */
+  --font-body: 'Noto Sans TC', -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+
+  --s1:4px; --s2:8px; --s3:16px; --s4:24px; --s5:32px; --s6:48px;
+  --step: steps(3, end);          /* the ONLY easing. no smooth curves. */
+}
+
+*, *::before, *::after { box-sizing: border-box; border-radius: 0 !important; }
+[hidden] { display: none !important; }   /* beats .stage{display:grid} etc. */
+
+body{
+  margin:0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+/* every raster thing stays crunchy */
+img, canvas, video { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+h1,h2,h3{ font-family: var(--font-display); font-weight:700; line-height:1.1; margin:0 0 var(--s3); }
+h1{ font-size: clamp(32px, 6vw, 56px); }
+h2{ font-size: clamp(24px, 4vw, 36px); }
+h3{ font-size: 18px; }
+p { margin: 0 0 var(--s3); color: var(--c-text); }
+a { color: var(--c-accent); text-decoration: underline; text-underline-offset: 3px; }
+a:hover { color: var(--c-text); }
+::selection { background: var(--c-accent); color: #fff; }
+
+/* long-form text: readable font, normal smoothing. chrome stays pixel. */
+.px-prose{ font-family: var(--font-body); font-size: 15px; letter-spacing: 0; -webkit-font-smoothing: antialiased; }
+
+/* micro label — the workhorse for section headers */
+.px-label{
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--c-dim);
+}
+
+/* ---------- panel: flat 2px hairline box ---------- */
+.px-panel{
+  background: var(--c-panel);
+  border: var(--px) solid var(--c-line);
+  padding: var(--s3);
+}
+.px-panel--sunken{ background:#000; box-shadow: inset var(--px) var(--px) 0 var(--c-bevel-lo); }
+
+/* ---------- notched box: stair-stepped pixel corners ---------- */
+/* no border property — the cross of shadows IS the border */
+.px-notch{
+  position: relative;
+  background: var(--c-panel);
+  border: 0;
+  margin: var(--px);
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--c-line),
+    0 var(--px) 0 0 var(--c-line),
+    calc(-1 * var(--px)) 0 0 0 var(--c-line),
+    var(--px) 0 0 0 var(--c-line);
+}
+
+/* ---------- window: titlebar + body ---------- */
+.px-window{ background: var(--c-panel); border: var(--px) solid var(--c-line); }
+.px-window__bar{
+  display:flex; align-items:center; justify-content:space-between; gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  background: var(--c-panel-2);
+  border-bottom: var(--px) solid var(--c-line);
+  font-size: 13px;
+}
+.px-window__close{
+  background:none; border:0; color: var(--c-dim); cursor:pointer;
+  font-family: var(--font-ui); font-size: 15px; line-height:1; padding: 2px 4px;
+}
+.px-window__close:hover{ color: var(--c-danger); }
+.px-window__body{ padding: var(--s3); }
+
+/* ---------- buttons: hard 2px bevel, no blur, no radius ---------- */
+.px-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap: var(--s2);
+  font-family: var(--font-ui); font-size: 13px;
+  padding: var(--s2) var(--s3);
+  color: var(--c-text);
+  background: var(--c-panel-2);
+  border: var(--px) solid var(--c-line);
+  box-shadow: inset var(--px) var(--px) 0 var(--c-bevel-hi),
+              inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--c-bevel-lo);
+  cursor: pointer;
+  transition: background .12s var(--step), color .12s var(--step);
+}
+.px-btn:hover{ background: var(--c-line); }
+.px-btn:active{
+  box-shadow: inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--c-bevel-hi),
+              inset var(--px) var(--px) 0 var(--c-bevel-lo);
+  transform: translate(0, var(--px));   /* whole-pixel travel only */
+}
+.px-btn:disabled{ opacity:.4; cursor:not-allowed; }
+.px-btn--primary{
+  background: var(--c-accent); border-color: var(--c-accent);
+  box-shadow: inset var(--px) var(--px) 0 #7b84f2,
+              inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--c-accent-lo);
+}
+.px-btn--primary:hover{ background: #6b75ee; }
+.px-btn--ghost{ background: transparent; box-shadow: none; }
+.px-btn--ghost:hover{ background: var(--c-panel-2); }
+
+:where(a,button,input,select,summary):focus-visible{
+  outline: var(--px) solid var(--c-accent);
+  outline-offset: var(--px);
+}
+
+/* ---------- dropzone ---------- */
+.px-drop{
+  border: var(--px) dashed var(--c-faint);
+  padding: var(--s6) var(--s3);
+  text-align:center; cursor:pointer;
+  transition: border-color .12s var(--step), background .12s var(--step);
+}
+.px-drop:hover, .px-drop.is-over{ border-color: var(--c-accent); background: rgba(89,100,234,.08); }
+.px-drop__hint{ color: var(--c-faint); font-size: 11px; }
+
+/* ---------- inputs ---------- */
+.px-input, .px-select{
+  font-family: var(--font-ui); font-size: 13px; color: var(--c-text);
+  background: #000; border: var(--px) solid var(--c-line);
+  padding: var(--s2) var(--s3);
+}
+
+/* ---------- checkbox: square, bevelled, accent fill ---------- */
+input[type=checkbox].px-check{
+  -webkit-appearance:none; appearance:none; margin:0;
+  width:var(--s3); height:var(--s3); flex:0 0 auto;
+  background:#000; border:var(--px) solid var(--c-line);
+  box-shadow: inset var(--px) var(--px) 0 var(--c-bevel-lo);
+  display:inline-grid; place-content:center; cursor:pointer;
+}
+input[type=checkbox].px-check:checked{ background:var(--c-accent); border-color:var(--c-accent); box-shadow:none; }
+input[type=checkbox].px-check:checked::after{
+  content:''; width:var(--s2); height:var(--s1); margin-top:calc(-1 * var(--px));
+  border-left:var(--px) solid #fff; border-bottom:var(--px) solid #fff;
+  transform: rotate(-45deg);   /* the only rotation allowed: it lands on pixel edges */
+}
+
+/* ---------- slider: 8px track, 16x24 square thumb ---------- */
+.px-range{
+  -webkit-appearance:none; appearance:none;
+  width:100%; height: var(--s4); background: transparent; cursor: pointer;
+}
+.px-range::-webkit-slider-runnable-track{
+  height: var(--s2); background: #000; border: var(--px) solid var(--c-line);
+}
+.px-range::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:16px; height: var(--s4); margin-top:-10px;
+  background: var(--c-panel-2); border: var(--px) solid var(--c-line);
+  box-shadow: inset var(--px) var(--px) 0 var(--c-bevel-hi),
+              inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--c-bevel-lo);
+}
+.px-range::-moz-range-track{ height: var(--s2); background:#000; border: var(--px) solid var(--c-line); }
+.px-range::-moz-range-thumb{
+  width:16px; height: var(--s4); border: var(--px) solid var(--c-line);
+  background: var(--c-panel-2);
+}
+
+/* ---------- checkerboard for transparency ---------- */
+.px-checker{
+  background-image:
+    linear-gradient(45deg,#191919 25%,transparent 25%,transparent 75%,#191919 75%),
+    linear-gradient(45deg,#191919 25%,transparent 25%,transparent 75%,#191919 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+  background-color: #101010;
+}
+
+/* ---------- swatches ---------- */
+.px-swatches{ display:flex; flex-wrap:wrap; gap: var(--px); }
+.px-swatch{ width: var(--s4); height: var(--s4); border: var(--px) solid var(--c-bevel-lo); }
+
+/* ---------- blinking caret / cursor accent ---------- */
+@keyframes px-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+.px-blink{ animation: px-blink 1s steps(1, end) infinite; }

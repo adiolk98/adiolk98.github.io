@@ -1,4 +1,4 @@
-import{d as e,s as t,t as n}from"./index-_VUDyVeM.js";var r=e(t(),1),i=n(),a=(0,r.createContext)(),o=()=>(0,r.useContext)(a),s=`retro-filesystem`,c={name:`/`,type:`folder`,children:[{name:`home`,type:`folder`,children:[{name:`readme.txt`,type:`file`,content:`這台機器上的東西都是真的：
+import{d as e,s as t,t as n}from"./index-BWIo_KtC.js";var r=e(t(),1),i=n(),a=(0,r.createContext)(),o=()=>(0,r.useContext)(a),s=`retro-filesystem`,c={name:`/`,type:`folder`,children:[{name:`home`,type:`folder`,children:[{name:`readme.txt`,type:`file`,content:`這台機器上的東西都是真的：
 cd / ls / mkdir / touch / rm / cat 都會改到同一份檔案系統，
 Finder 看到的就是 Terminal 看到的。`}]},{name:`documents`,type:`folder`,children:[{name:`未命名.txt`,type:`file`,content:`如果你在看這個...
 那首歌還沒停過。
