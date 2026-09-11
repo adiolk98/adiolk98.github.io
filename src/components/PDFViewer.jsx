@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PDFViewer = ({ filePath }) => {
+const PDFViewer = ({ filePath, title = 'PDF Viewer' }) => {
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <iframe
@@ -8,7 +8,7 @@ const PDFViewer = ({ filePath }) => {
         width="100%"
         height="100%"
         style={{ border: 'none' }}
-        title="PDF Viewer"
+        title={title}
       ></iframe>
     </div>
   );

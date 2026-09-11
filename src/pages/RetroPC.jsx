@@ -162,6 +162,20 @@ const APP_CONFIGS = [
     Component: GameBoyAdvance,
   },
   {
+    id: 'pixel-snapper',
+    name: 'Pixel Snapper',
+    icon: '/assets/app/pixel-snapper.svg',
+    windowProps: { title: 'Pixel Snapper', defaultSize: { x: 240, y: 130, width: 720, height: 560 }, resizable: true },
+    Component: () => <PDFViewer filePath="/apps/pixel-me/index.html" title="Pixel Snapper" />,
+  },
+  {
+    id: 'apnea-table',
+    name: 'CO2 耐受表',
+    icon: '/assets/app/apnea-table.svg',
+    windowProps: { title: 'CO2 耐受表', defaultSize: { x: 280, y: 150, width: 700, height: 560 }, resizable: true },
+    Component: () => <PDFViewer filePath="/apps/pixel-me/co2table.html" title="CO2 耐受表" />,
+  },
+  {
     id: 'tools',
     name: 'Developer Tools',
     icon: '/assets/app/B/Toggl.png',
