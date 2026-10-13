@@ -19,6 +19,8 @@
 ## Main Interface and Tools Design System
 
 * Home remains an operating-system desktop: `DesktopBackground` provides pixel city wallpapers, `DesktopIcons` provides draggable shortcuts, `MacMenuBar` provides system menus, and `Dock` is the persistent taskbar. Do not replace the desktop with a dashboard or card-based home page.
+* `DesktopPet` uses the original ChatGPT 豆虎 sprite atlas at `public/assets/pets/douhu.png`. Keep its transparent artwork, use the v2 idle/walk/greeting rows, and constrain movement to the measured desktop. Honor reduced-motion preferences.
+* Toolbox index is a CRT utility manager: category directory, searchable program list, and selected-tool inspector with format flow. Styles live in `src/pages/Tools/toolbox.css`. On phones, selecting a program scrolls to its inspector, with the launch action before the longer description.
 * `CrtTube` wraps the live UI in a thin bezel, squircle glass, calibrated barrel filter, soft phosphor glow and canvas scanlines. Keep reflections outside the warped layer.
 * Desktop tubes use a 4:3 ratio; portrait tubes use 3:4. Size the interface in `em` from the tube's font size. Put scrolling content in `.screen-board`, keeping the header and navigation visible.
 * Use cream (`--crt-cream`), pink (`--crt-pink`), rose (`--crt-rose`) and tan (`--crt-tan`) panels on the blue phosphor ground. Dark ink (`--crt-ink`) is for light surfaces.
