@@ -1,95 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import styled from 'styled-components';
+import React, { useLayoutEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
-const MenuContainer = styled.div.attrs({
-  className: 'dropdown-menu-container' // For outside click detection
-})`
-  position: absolute;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid #000;
-  padding: 5px ;
-  min-width: 200px;
-  z-index: 1000;
-  font-family: 'Cubic_11', sans-serif;
-  font-size: 15px;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
-`;
+export default function DropdownMenu({ items, position, onClose }) {
+  const ref = useRef(null);
+  const host = document.querySelector('.crt-tube .warp') || document.body;
+  const bounds = host.getBoundingClientRect();
+  const x = position.x - bounds.left;
+  const y = position.y - bounds.top;
 
-const MenuItem = styled.div`
-  padding: 5px 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  background-color: ${props => props.isHovered ? '#000080' : 'transparent'};
-  color: ${props => {
-    if (props.isHovered) return 'white';
-    if (props.disabled) return '#888';
-    return '#000';
-  }};
-  
-  // Create a scanline effect for disabled items
-  ${props => props.disabled && `
-    position: relative;
-    overflow: hidden;
-    &::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent 1px,
-        rgba(0, 0, 0, 0.2) 2px,
-        rgba(0, 0, 0, 0.2) 3px
-      );
-      pointer-events: none;
-    }
-  `}
+  useLayoutEffect(() => {
+    const menu = ref.current;
+    if (!menu) return;
+    menu.style.left = `${Math.max(16,Math.min(x,host.clientWidth-menu.offsetWidth-16))}px`;
+    menu.style.top = `${Math.max(16,Math.min(y,host.clientHeight-menu.offsetHeight-16))}px`;
+    menu.querySelector('button:not(:disabled)')?.focus({preventScroll:true});
+  },[x,y,host]);
 
-  pointer-events: ${props => props.disabled ? 'none' : 'auto'};
-`;
-
-const Separator = styled.div`
-  height: 1px;
-  border-top: 1px dotted #888;
-  margin: 5px 4px;
-`;
-
-const DropdownMenu = ({ items, position, onClose }) => {
-  const [hoveredIndex, setHoveredIndex] = React.useState(-1);
-
-  const handleItemClick = (item) => {
-    if (item.action) {
-      item.action();
-    }
-    onClose();
-  };
-
-  return ReactDOM.createPortal(
-    <MenuContainer style={{ top: position.y, left: position.x }}>
-      {items.map((item, index) => {
-        if (item.type === 'separator') {
-          return <Separator key={index} />;
-        }
-        return (
-          <MenuItem
-            key={index}
-            disabled={item.disabled}
-            onClick={() => handleItemClick(item)}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(-1)}
-            isHovered={!item.disabled && hoveredIndex === index}
-          >
-            {item.label}
-          </MenuItem>
-        );
-      })}
-    </MenuContainer>,
-    document.body
-  );
-};
-
-export default DropdownMenu; 
+  return createPortal(<div className="dropdown-menu-container desktop-dropdown px" role="menu" ref={ref} style={{left:x,top:y}} onKeyDown={e=>{
+    const buttons = Array.from(ref.current.querySelectorAll('button:not(:disabled)'));
+    const index = buttons.indexOf(document.activeElement);
+    if (e.key==='Escape') { e.preventDefault(); onClose(); }
+    if (e.key==='ArrowDown' || e.key==='ArrowUp') { e.preventDefault(); buttons[(index+(e.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length]?.focus(); }
+  }}>
+    {items.map((item,i)=>item.type==='separator' ? <div className="desktop-menu-rule" key={i} role="separator" /> : <button role="menuitem" key={i} disabled={item.disabled} onClick={()=>{item.action?.();onClose();}}>{item.label}</button>)}
+  </div>,host);
+}

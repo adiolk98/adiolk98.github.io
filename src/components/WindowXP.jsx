@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
 import styled from "styled-components";
 import { useSound, useClickSound } from "./ClickSoundContext";
@@ -11,9 +11,9 @@ const TitleBar = styled.div`
   background: linear-gradient(180deg, var(--crt-rose) 0%, var(--crt-rose) 52%, var(--crt-rose-lo) 100%);
   color: var(--crt-rose-ink);
   padding: 0 6px 0 10px;
-  height: 30px;
+  height: 100%;
   font-family: 'DotGothic16', monospace;
-  font-size: 1.1rem;
+  font-size: 1em;
   box-shadow: inset 0 0 0 2px var(--crt-line);
   cursor: move;
   user-select: none;
@@ -22,7 +22,7 @@ const TitleBar = styled.div`
 const TitleBarText = styled.div`
   display: flex;
   align-items: center;
-  font-size: 12px;
+  font-size: 1em;
 `;
 
 const TitleBarControls = styled.div`
@@ -40,13 +40,13 @@ const TitleBarControls = styled.div`
     box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .34);
     border: none;
     color: var(--crt-rose-ink);
-    width: 26px;
-    height: 26px;
+    width: 2.05em;
+    height: 2.05em;
     line-height: 1;
-    font-size: 13px;
+    font-size: 1em;
     cursor: pointer;
     transition: background 0.2s;
-    &:hover {
+    &:hover, &:active, &:focus-visible {
       background: rgba(0, 0, 0, .4);
     }
     &:focus-visible {
@@ -60,19 +60,24 @@ const WindowBody = styled.div`
   /* border-box：不然 padding 會加在 100% 之外，每個 App 的底部都被切掉 20px。 */
   box-sizing: border-box;
   padding: 10px 8px;
-  height: calc(100% - 30px);
-  max-height: calc(100% - 30px);
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   overflow: auto;
   background: var(--crt-cream);
   &::-webkit-scrollbar {
     width: 8px;
-    background: #eee;
+    background: var(--crt-tan);
   }
   &::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: var(--crt-rose);
     border-radius: 1px;
   }
-  font-size: 12px;
+  font-size: .92em;
+  color:var(--crt-ink);
+  font-family:'DotGothic16',monospace;
+  scrollbar-color:var(--crt-rose) var(--crt-tan);
+  scrollbar-width:thin;
 `;
 
 const CustomWindowFrame = ({
@@ -91,26 +96,30 @@ const CustomWindowFrame = ({
   const { playCancel } = useSound();
   const [maximized, setMaximized] = useState(false);
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-
-  const mobileSize = isMobile
-    ? {
-        x: 10,
-        y: 38,
-        width: Math.min(window.innerWidth - 20, 380),
-        height: Math.min(window.innerHeight - 80, 520)
-      }
-    : defaultSize;
-
-  // 最大化：撐滿選單列以下的整個桌面。視窗層的原點已經在選單列下方，所以 y 從 0 算起；
-  // 底部再留給工作列，不然視窗最下面一行（例如 Terminal 的輸入列）會被工作列蓋住。
-  const DOCK_HEIGHT = 46;
-  const maximizedBox = { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight - 30 - DOCK_HEIGHT };
-  const controlled = isMobile
-    ? { position: { x: 10, y: 38 }, size: { width: mobileSize.width, height: mobileSize.height } }
-    : maximized
-      ? { position: { x: maximizedBox.x, y: maximizedBox.y }, size: { width: maximizedBox.width, height: maximizedBox.height } }
-      : {};
+  const [bounds, setBounds] = useState({ width: 800, height: 560 });
+  const [box, setBox] = useState(defaultSize);
+  useEffect(() => {
+    const parent = document.getElementById('desktop-windows-layer');
+    if (!parent) return;
+    const measure = () => {
+      const width = parent.clientWidth;
+      const height = parent.clientHeight;
+      setBounds({ width, height });
+      setBox(current => {
+        const w = Math.min(current.width, width);
+        const h = Math.min(current.height, height);
+        return { width: w, height: h, x: Math.max(0, Math.min(current.x, width - w)), y: Math.max(0, Math.min(current.y, height - h)) };
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, []);
+  const isMobile = bounds.width <= 640;
+  const controlled = isMobile || maximized
+    ? { position: { x: 0, y: 0 }, size: { width: bounds.width, height: bounds.height } }
+    : { position: { x: box.x, y: box.y }, size: { width: box.width, height: box.height } };
 
   const withSound = (fn, sound) => () => {
     try {
@@ -123,20 +132,24 @@ const CustomWindowFrame = ({
 
   return (
     <Rnd
-      default={mobileSize}
       {...controlled}
-      minWidth={200}
+      bounds="parent"
+      maxWidth={bounds.width}
+      maxHeight={bounds.height}
+      minWidth={Math.min(200, bounds.width)}
       minHeight={100}
       disableDragging={isMobile || maximized}
       enableResizing={!isMobile && !maximized && resizable}
       dragHandleClassName="window-title-bar"
       style={{ zIndex, display: minimized ? 'none' : undefined }}
+      onDragStop={(_, data) => setBox(current => ({ ...current, x: data.x, y: data.y }))}
+      onResizeStop={(_, __, element, ___, position) => setBox({ width: element.offsetWidth, height: element.offsetHeight, ...position })}
       onDragStart={() => onFocus && onFocus()}
       onResizeStart={() => onFocus && onFocus()}
     >
       <CustomWindow style={{ width: "100%", height: "100%" }} onMouseDown={() => onFocus && onFocus()}>
         <TitleBar
-          className="window-title-bar"
+          className="window-title-bar px"
           onDoubleClick={() => !isMobile && setMaximized(m => !m)}
           onMouseDown={withSound(null, playClick)}
         >
@@ -154,16 +167,16 @@ const CustomWindowFrame = ({
             {title}
           </TitleBarText>
           <TitleBarControls>
-            <button aria-label={`Minimize ${title} window`} onClick={withSound(onMinimize, playClick)}>—</button>
+            <button className="px" aria-label={`Minimize ${title} window`} onClick={withSound(onMinimize, playClick)}>—</button>
             {!isMobile && (
-              <button
+              <button className="px"
                 aria-label={`${maximized ? 'Restore' : 'Maximize'} ${title} window`}
                 onClick={withSound(() => setMaximized(m => !m), playClick)}
               >
                 {maximized ? '❐' : '☐'}
               </button>
             )}
-            <button aria-label={`Close ${title} window`} onClick={withSound(onClose, playCancel)}>✕</button>
+            <button className="px" aria-label={`Close ${title} window`} onClick={withSound(onClose, playCancel)}>✕</button>
           </TitleBarControls>
         </TitleBar>
         <WindowBody>

@@ -1,14 +1,11 @@
 // 桌面偏好設定：桌布、圖示位置。都存在瀏覽器裡，重新整理後還在。
-const WALLPAPER_KEY = 'desktop-wallpaper';
+const WALLPAPER_KEY = 'desktop-wallpaper-crt';
 const ICONS_KEY = 'desktop-icon-positions';
 
 export const WALLPAPERS = [
-  { id: 'video', name: '動態桌布', type: 'video', src: '/assets/wallpaper-compressed.mp4' },
-  { id: 'phosphor', name: '螢光幕綠', type: 'color', src: 'radial-gradient(ellipse 90% 80% at 50% 40%, #1d3a2a 0%, #0d1f16 60%, #060d0a 100%)' },
-  { id: 'rose', name: '奶油玫瑰', type: 'color', src: 'linear-gradient(160deg, #d98d94 0%, #ecd8a6 55%, #f3e7d0 100%)' },
-  { id: 'website', name: '網站截圖', type: 'image', src: '/assets/photo/website.webp' },
-  { id: 'camera', name: '底片照', type: 'image', src: '/assets/photo/camera-5.jpg' },
-  { id: 'cat', name: '好貓', type: 'image', src: '/assets/photo/good-cat.png' },
+  { id: 'pixel-dusk', name: '昭和暮色', type: 'pixel', variant: 'dusk' },
+  { id: 'pixel-night', name: '深夜街景', type: 'pixel', variant: 'night' },
+  { id: 'pixel-rose', name: '玫瑰晨光', type: 'pixel', variant: 'rose' },
 ];
 
 function read(key, fallback) {

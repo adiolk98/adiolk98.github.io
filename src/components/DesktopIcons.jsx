@@ -9,7 +9,11 @@ const PAD_Y = 8;
 const DRAG_THRESHOLD = 4; // 小於這個距離算點擊，不算拖曳
 
 // 預設排列：跟以前一樣由左而右換行，只是現在算得出座標，才能拖走再放回來。
-function gridPosition(index, width) {
+function gridPosition(index, width, height) {
+  if (width > 640) {
+    const rows = Math.max(1, Math.floor((height - PAD_Y) / CELL_H));
+    return { x: PAD_X + Math.floor(index / rows) * CELL_W, y: PAD_Y + (index % rows) * CELL_H };
+  }
   const columns = Math.max(1, Math.floor((width - PAD_X) / CELL_W));
   return {
     x: PAD_X + (index % columns) * CELL_W,
@@ -20,7 +24,7 @@ function gridPosition(index, width) {
 function DesktopIcons({ apps, onOpen, layoutVersion }) {
   const [positions, setPositions] = useState(loadIconPositions);
   const [dragging, setDragging] = useState(null); // { id, x, y }
-  const [width, setWidth] = useState(0);
+  const [size, setSize] = useState({ width:0, height:0 });
   const areaRef = useRef(null);
   const dragRef = useRef(null);
   // 拖曳結束後瀏覽器還是會補一個 click/dblclick，這個旗標把那一下吃掉，
@@ -34,7 +38,7 @@ function DesktopIcons({ apps, onOpen, layoutVersion }) {
   useEffect(() => {
     const area = areaRef.current;
     if (!area) return;
-    const measure = () => setWidth(area.clientWidth);
+    const measure = () => setSize({ width:area.clientWidth, height:area.clientHeight });
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(area);
@@ -53,7 +57,9 @@ function DesktopIcons({ apps, onOpen, layoutVersion }) {
   const startDrag = (e, app, fallback) => {
     if (isTouch || e.button !== 0) return;
     justDraggedRef.current = false;
-    const at = positions[app.id] || fallback;
+    const at = { ...(positions[app.id] || fallback) };
+    at.x = Math.max(0, Math.min(at.x, size.width - 88));
+    at.y = Math.max(0, Math.min(at.y, size.height - 100));
     dragRef.current = {
       id: app.id,
       startX: e.clientX,
@@ -82,8 +88,8 @@ function DesktopIcons({ apps, onOpen, layoutVersion }) {
     if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
     drag.moved = true;
     const area = areaRef.current;
-    const maxX = Math.max(0, (area?.clientWidth ?? 800) - 84);
-    const maxY = Math.max(0, (area?.clientHeight ?? 600) - 88);
+    const maxX = Math.max(0, (area?.clientWidth ?? 800) - 88);
+    const maxY = Math.max(0, (area?.clientHeight ?? 600) - 100);
     drag.x = Math.min(Math.max(0, drag.originX + dx), maxX);
     drag.y = Math.min(Math.max(0, drag.originY + dy), maxY);
     setDragging({ id: drag.id, x: drag.x, y: drag.y });
@@ -102,19 +108,20 @@ function DesktopIcons({ apps, onOpen, layoutVersion }) {
     saveIconPositions(next);
   }
 
+  useEffect(() => () => dragRef.current?.controller.abort(), []);
+  const columns = Math.max(1, Math.floor((size.width - PAD_X) / CELL_W));
+  const contentHeight = size.width <= 640 ? Math.ceil(apps.length / columns) * CELL_H + PAD_Y : size.height;
+
   return (
     <div
       ref={areaRef}
-      style={{
-        position: 'absolute',
-        inset: '60px 0 0 0',
-        zIndex: 2,
-        pointerEvents: 'none',
-      }}
+      className="desktop-icon-area"
     >
+      <div className="desktop-icon-canvas" style={{ height:contentHeight }}>
       {apps.map((app, index) => {
-        const fallback = gridPosition(index, width);
-        const saved = positions[app.id] || fallback;
+        const fallback = gridPosition(index, size.width, size.height);
+        const stored = size.width > 640 ? positions[app.id] : null;
+        const saved = stored ? { x: Math.max(0,Math.min(stored.x,size.width-88)), y:Math.max(0,Math.min(stored.y,size.height-100)) } : fallback;
         const live = dragging?.id === app.id ? dragging : saved;
         return (
           <div
@@ -124,7 +131,7 @@ function DesktopIcons({ apps, onOpen, layoutVersion }) {
               position: 'absolute',
               left: live.x,
               top: live.y,
-              width: 80,
+              width: 88,
               pointerEvents: 'auto',
               // 拖曳中的圖示要浮在最上面，而且不要因為滑過就觸發 hover 樣式
               zIndex: dragging?.id === app.id ? 5 : 1,
@@ -136,14 +143,15 @@ function DesktopIcons({ apps, onOpen, layoutVersion }) {
               icon={app.icon}
               label={app.name}
               disabled={app.disabled}
-              onDoubleClick={() => {
-                if (justDraggedRef.current) return;
+              onDoubleClick={(keyboard = false) => {
+                if (justDraggedRef.current && !keyboard) return;
                 onOpen(app.id);
               }}
             />
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

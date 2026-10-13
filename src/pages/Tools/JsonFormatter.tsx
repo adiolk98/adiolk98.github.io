@@ -18,7 +18,6 @@ export const JsonFormatter: React.FC = () => {
   const [diagnostic, setDiagnostic] = useState<StructureDiagnostic | null>(null);
   const [fixMessage, setFixMessage] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<number>(15);
-  
   // Keep track of the input editor instance so we can scroll/jump to line
   const editorRef = useRef<any>(null);
 
@@ -251,15 +250,15 @@ export const JsonFormatter: React.FC = () => {
   };
 
   return (
-    <div style={{
-      fontFamily: "'VT323', 'DotGothic16', monospace",
-      background: '#0F0E17',
-      color: '#FFFFFE',
+    <div className="tool-detail" style={{
+      fontFamily: "'DotGothic16', monospace",
+      background: "var(--crt-phos-2)",
+      color: "var(--crt-cream)",
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      minHeight: '100vh',
-      padding: '40px 20px',
+      minHeight: '100%',
+      padding: '1em',
       boxSizing: 'border-box',
       position: 'relative'
     }}>
@@ -278,37 +277,28 @@ export const JsonFormatter: React.FC = () => {
           justifyContent: 'space-between',
           gap: '16px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <Link 
-              to="/tools" 
+          <div className="tool-controls-heading" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <Link className="px"
+              to="/tools"
               style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: '0.65rem',
-                color: '#FF8E3C',
+                fontSize: "0.65em",
+                color: "var(--crt-rose-lo)",
                 textDecoration: 'none',
-                background: '#2A2A3B',
+                background: "var(--crt-tan)",
                 padding: '10px 16px',
-                border: '3px solid #000000',
-                boxShadow: '3px 3px 0px #000000',
+                boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
                 imageRendering: 'pixelated'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#FF8E3C';
-                e.currentTarget.style.color = '#0F0E17';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2A2A3B';
-                e.currentTarget.style.color = '#FF8E3C';
               }}
             >
               ◄ BACK TO TOOLBOX
             </Link>
 
-            <h1 
+            <h1
               className="game-color-shift"
               style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: '1.2rem',
+                fontSize: "1.2em",
                 margin: 0
               }}
             >
@@ -317,51 +307,47 @@ export const JsonFormatter: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <div style={{ fontFamily: "'VT323', monospace", color: '#A7A9BE', fontSize: '1.1rem' }}>
-              Powered by Monaco Editor (Press <kbd style={{ background: '#2A2A3B', padding: '2px 6px', border: '1px solid #000' }}>Ctrl+F</kbd> inside editor to search)
+            <div style={{ fontFamily: "'DotGothic16', monospace", color: "var(--crt-cream)", fontSize: "0.9em" }}>
+              Powered by Monaco Editor (Press <kbd className="px" style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",  background: "var(--crt-tan)", padding: '2px 6px',  }}>Ctrl+F</kbd> inside editor to search)
             </div>
 
             {/* Font Zoom Controls */}
-            <div style={{
+            <div className="px" style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              background: '#16161A',
-              border: '2px solid #000',
+              background: "var(--crt-cream)",
               padding: '4px 8px',
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: '0.65rem'
+              fontSize: "0.65em"
             }}>
-              <span style={{ color: '#A7A9BE' }}>ZOOM:</span>
-              <button
+              <span style={{ color: "var(--crt-ink-2)" }}>ZOOM:</span>
+              <button className="px"
                 onClick={() => setFontSize((prev) => Math.max(10, prev - 2))}
-                style={{
-                  background: '#2A2A3B',
-                  color: '#FFFFFE',
-                  border: '1px solid #000',
+                style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+                  background: "var(--crt-tan)",
+                  color: "var(--crt-ink)",
                   padding: '2px 6px',
                   cursor: 'pointer'
                 }}
                 title="Decrease font size"
               >-</button>
-              <span style={{ color: '#2CB67D', minWidth: '40px', textAlign: 'center' }}>{fontSize}px</span>
-              <button
+              <span style={{ color: "var(--crt-green)", minWidth: '40px', textAlign: 'center' }}>{fontSize}px</span>
+              <button className="px"
                 onClick={() => setFontSize((prev) => Math.min(32, prev + 2))}
-                style={{
-                  background: '#2A2A3B',
-                  color: '#FFFFFE',
-                  border: '1px solid #000',
+                style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+                  background: "var(--crt-tan)",
+                  color: "var(--crt-ink)",
                   padding: '2px 6px',
                   cursor: 'pointer'
                 }}
                 title="Increase font size"
               >+</button>
-              <button
+              <button className="px"
                 onClick={() => setFontSize(15)}
-                style={{
-                  background: '#2A2A3B',
-                  color: '#A7A9BE',
-                  border: '1px solid #000',
+                style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+                  background: "var(--crt-tan)",
+                  color: "var(--crt-ink-2)",
                   padding: '2px 6px',
                   cursor: 'pointer',
                   marginLeft: '4px'
@@ -372,180 +358,145 @@ export const JsonFormatter: React.FC = () => {
         </div>
 
         {/* Middle Action Bar */}
-        <div style={{
+        <div className="px" style={{
           display: 'flex',
           gap: '16px',
           alignItems: 'center',
           flexWrap: 'wrap',
-          background: '#16161A',
+          background: "var(--crt-cream)",
           padding: '12px 16px',
-          border: '4px solid #000000',
-          borderBottom: 'none',
-          boxShadow: '4px 0px 0px rgba(0,0,0,0.5)',
+
+          boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
           justifyContent: 'center'
         }}>
-          <button
+          <button className="px"
             onClick={formatJson}
             style={{
-              background: '#FF8E3C',
-              color: '#0F0E17',
-              border: '3px solid #000000',
+              background: "var(--crt-rose-lo)",
+              color: "var(--crt-ink)",
               padding: '10px 20px',
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: '0.85rem',
+              fontSize: "0.85em",
               cursor: 'pointer',
-              boxShadow: '3px 3px 0px #000000',
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               transition: 'transform 0.1s'
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '1px 1px 0px #000000';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'translate(0px, 0px)';
-              e.currentTarget.style.boxShadow = '3px 3px 0px #000000';
-            }}
           >
-            ⚡ FORMAT / BEAUTIFY
+             FORMAT / BEAUTIFY
           </button>
 
-          <button
+          <button className="px"
             onClick={minifyJson}
             style={{
-              background: '#2CB67D',
-              color: '#0F0E17',
-              border: '3px solid #000000',
+              background: "var(--crt-green)",
+              color: "var(--crt-ink)",
               padding: '10px 20px',
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: '0.85rem',
+              fontSize: "0.85em",
               cursor: 'pointer',
-              boxShadow: '3px 3px 0px #000000',
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               transition: 'transform 0.1s'
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '1px 1px 0px #000000';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'translate(0px, 0px)';
-              e.currentTarget.style.boxShadow = '3px 3px 0px #000000';
-            }}
           >
-            📦 MINIFY
+             MINIFY
           </button>
 
-          <button
+          <button className="px"
             onClick={autoFixJson}
             style={{
-              background: '#E53170',
-              color: '#FFFFFE',
-              border: '3px solid #000000',
+              background: "var(--crt-red-lo)",
+              color: "var(--crt-ink)",
               padding: '10px 20px',
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: '0.85rem',
+              fontSize: "0.85em",
               cursor: 'pointer',
-              boxShadow: '3px 3px 0px #000000',
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               transition: 'transform 0.1s'
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '1px 1px 0px #000000';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'translate(0px, 0px)';
-              e.currentTarget.style.boxShadow = '3px 3px 0px #000000';
-            }}
           >
-            🛠️ AUTO-FIX JSON
+             AUTO-FIX JSON
           </button>
         </div>
 
         {/* Status / Messages */}
         {fixMessage && (
-          <div style={{
-            color: '#2CB67D',
+          <div className="px" style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+            color: "var(--crt-green)",
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: '0.65rem',
+            fontSize: "0.65em",
             background: 'rgba(44, 182, 125, 0.15)',
             padding: '10px 16px',
-            border: '4px solid #000',
-            borderTop: '2px solid #2CB67D',
-            borderBottom: 'none'
+
           }}>
             ✓ {fixMessage}
           </div>
         )}
 
         {error && (
-          <div style={{
+          <div className="px" style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
             color: '#FF3B30',
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: '0.65rem',
+            fontSize: "0.65em",
             background: 'rgba(255, 59, 48, 0.15)',
             padding: '12px 16px',
-            border: '4px solid #000',
-            borderTop: '2px solid #FF3B30',
-            borderBottom: 'none',
+
             display: 'flex',
             flexDirection: 'column',
             gap: '10px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div>✖ PARSE ERROR: {error}</div>
+              <div> PARSE ERROR: {error}</div>
               {errorLine && (
-                <button
+                <button className="px"
                   onClick={() => jumpToInputLine(errorLine)}
                   style={{
                     background: '#FF3B30',
-                    color: '#FFFFFE',
-                    border: '1px solid #000000',
+                    color: "var(--crt-ink)",
                     padding: '4px 10px',
                     fontFamily: "'Press Start 2P', monospace",
-                    fontSize: '0.55rem',
+                    fontSize: "0.55em",
                     cursor: 'pointer',
-                    boxShadow: '2px 2px 0px #000000'
+                    boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
                   }}
                 >
-                  🎯 JUMP TO LINE {errorLine}
+                   JUMP TO LINE {errorLine}
                 </button>
               )}
             </div>
 
             {/* Structural Diagnostic info for Unbalanced Brackets / Braces */}
             {diagnostic && !diagnostic.isValid && (
-              <div style={{
-                background: '#16161A',
-                border: '1px dashed #FF8E3C',
+              <div className="px" style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+                background: "var(--crt-cream)",
                 padding: '10px 12px',
-                color: '#FF8E3C',
+                color: "var(--crt-rose-lo)",
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '8px'
               }}>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '0.6rem' }}>
-                  🔍 BRACKET / STRUCTURAL ANALYSIS:
+                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "0.6em" }}>
+                   BRACKET / STRUCTURAL ANALYSIS:
                 </div>
-                <div style={{ fontFamily: "'VT323', monospace", fontSize: '1.1rem', color: '#FFFFFE' }}>
+                <div style={{ fontFamily: "'DotGothic16', monospace", fontSize: "1.1em", color: "var(--crt-ink)" }}>
                   {diagnostic.message}
                 </div>
 
                 {diagnostic.unmatchedLines && diagnostic.unmatchedLines.length > 0 && (
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
                     {diagnostic.unmatchedLines.map((item, idx) => (
-                      <button
+                      <button className="px"
                         key={idx}
                         onClick={() => jumpToInputLine(item.line)}
-                        style={{
-                          background: '#2A2A3B',
-                          color: '#FF8E3C',
-                          border: '1px solid #FF8E3C',
+                        style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+                          background: "var(--crt-tan)",
+                          color: "var(--crt-rose-lo)",
                           padding: '4px 8px',
                           fontFamily: "'Press Start 2P', monospace",
-                          fontSize: '0.55rem',
+                          fontSize: "0.55em",
                           cursor: 'pointer'
                         }}
                       >
-                        🎯 JUMP TO LINE {item.line} ({item.char})
+                         JUMP TO LINE {item.line} ({item.char})
                       </button>
                     ))}
                   </div>
@@ -553,40 +504,37 @@ export const JsonFormatter: React.FC = () => {
               </div>
             )}
 
-            <div style={{ fontFamily: "'VT323', monospace", fontSize: '1rem', color: '#A7A9BE' }}>
-              Tip: Click <strong>"🛠️ AUTO-FIX JSON"</strong> above to attempt automatic repair of unclosed braces/brackets, missing quotes, single quotes, and trailing commas!
+            <div style={{ fontFamily: "'DotGothic16', monospace", fontSize: "1em", color: "var(--crt-ink-2)" }}>
+              Tip: Click <strong>" AUTO-FIX JSON"</strong> above to attempt automatic repair of unclosed braces/brackets, missing quotes, single quotes, and trailing commas!
             </div>
           </div>
         )}
 
         {/* Side-by-side Editors layout */}
-        <div style={{ 
-          display: 'grid', 
+        <div className="px editor-columns" style={{
+          display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
           background: '#000',
-          border: '4px solid #000000',
-          boxShadow: '6px 6px 0px rgba(0,0,0,0.8)'
+          boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
         }}>
           {/* INPUT EDITOR */}
-          <div style={{ borderRight: '4px solid #000' }}>
-            <div style={{
-              background: '#16161A',
+          <div style={{boxShadow: "inset -.14em 0 0 var(--crt-line)",   }}>
+            <div style={{boxShadow: "inset 0 -.14em 0 var(--crt-line)",
+              background: "var(--crt-cream)",
               padding: '10px 16px',
-              borderBottom: '2px solid #000',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '0.8rem', color: '#FF8E3C' }}>INPUT JSON</span>
-              <button
+              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "0.8em", color: "var(--crt-rose-lo)" }}>INPUT JSON</span>
+              <button className="px"
                 onClick={() => { setInputJson(''); setOutputJson(''); setError(null); setErrorLine(null); setDiagnostic(null); setFixMessage(null); }}
-                style={{
-                  background: '#2A2A3B',
-                  color: '#A7A9BE',
-                  border: '1px solid #000',
+                style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
+                  background: "var(--crt-tan)",
+                  color: "var(--crt-ink-2)",
                   padding: '2px 8px',
                   fontFamily: "'Press Start 2P', monospace",
-                  fontSize: '0.55rem',
+                  fontSize: "0.55em",
                   cursor: 'pointer'
                 }}
               >
@@ -597,7 +545,7 @@ export const JsonFormatter: React.FC = () => {
               <Editor
                 height="100%"
                 language="json"
-                theme="vs-dark"
+                theme="vs"
                 value={inputJson}
                 onChange={(value) => setInputJson(value || '')}
                 onMount={handleEditorDidMount}
@@ -616,36 +564,34 @@ export const JsonFormatter: React.FC = () => {
 
           {/* OUTPUT EDITOR */}
           <div>
-            <div style={{
-              background: '#16161A',
+            <div style={{boxShadow: "inset 0 -.14em 0 var(--crt-line)",
+              background: "var(--crt-cream)",
               padding: '10px 16px',
-              borderBottom: '2px solid #000',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '0.8rem', color: '#2CB67D' }}>OUTPUT</span>
-              <button
+              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "0.8em", color: "var(--crt-green)" }}>OUTPUT</span>
+              <button className="px"
                 onClick={copyToClipboard}
                 style={{
-                  background: '#2CB67D',
-                  color: '#0F0E17',
-                  border: '1px solid #000',
+                  background: "var(--crt-green)",
+                  color: "var(--crt-ink)",
                   padding: '2px 8px',
                   fontFamily: "'Press Start 2P', monospace",
-                  fontSize: '0.55rem',
+                  fontSize: "0.55em",
                   cursor: 'pointer',
-                  boxShadow: '1px 1px 0px #000'
+                  boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
                 }}
               >
-                📋 COPY
+                 COPY
               </button>
             </div>
             <div style={{ height: '500px', width: '100%' }}>
               <Editor
                 height="100%"
                 language="json"
-                theme="vs-dark"
+                theme="vs"
                 value={outputJson}
                 options={{
                   minimap: { enabled: false },

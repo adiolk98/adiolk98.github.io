@@ -139,16 +139,16 @@ export const AudioToMp3: React.FC = () => {
   };
 
   return (
-    <div style={{
-      fontFamily: "'VT323', 'DotGothic16', monospace",
-      background: '#0F0E17',
-      color: '#FFFFFE',
+    <div className="tool-detail" style={{
+      fontFamily: "'DotGothic16', monospace",
+      background: "var(--crt-phos-2)",
+      color: "var(--crt-ink)",
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      minHeight: '100vh',
+      minHeight: '100%',
       flexShrink: 0,
-      padding: '60px 24px',
+      padding: '1em',
       boxSizing: 'border-box',
       position: 'relative',
       overflow: 'hidden'
@@ -158,45 +158,25 @@ export const AudioToMp3: React.FC = () => {
         <meta name="description" content="Convert WAV and MP4 files to MP3 in your browser with sample-exact duration and no extra re-encoding. 100% client-side, nothing is uploaded." />
       </Helmet>
 
-      {/* CRT Scanline Overlay Effect */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        background: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%)',
-        backgroundSize: '100% 4px',
-        pointerEvents: 'none',
-        zIndex: 99
-      }} />
+
 
       <div style={{ maxWidth: '640px', width: '100%', zIndex: 1 }}>
         {/* Back Link */}
         <div style={{ marginBottom: '24px' }}>
-          <Link
+          <Link className="px"
             to="/tools"
             style={{
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: '0.75rem',
-              color: '#FF8E3C',
+              fontSize: "0.75em",
+              color: "var(--crt-rose-lo)",
               textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              background: '#2A2A3B',
+              background: "var(--crt-tan)",
               padding: '8px 16px',
-              border: '3px solid #000000',
-              boxShadow: '3px 3px 0px #000000',
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               imageRendering: 'pixelated'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#FF8E3C';
-              e.currentTarget.style.color = '#0F0E17';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#2A2A3B';
-              e.currentTarget.style.color = '#FF8E3C';
             }}
           >
             {'◄'} BACK TO TOOLBOX
@@ -204,20 +184,19 @@ export const AudioToMp3: React.FC = () => {
         </div>
 
         {/* Retro Card */}
-        <div style={{
-          background: '#16161A',
+        <div className="px" style={{
+          background: "var(--crt-cream)",
           padding: '40px 32px',
-          border: '4px solid #000000',
-          boxShadow: '8px 8px 0px #000000, inset -3px -3px 0px #242629, inset 3px 3px 0px #383A3F',
+          boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
           imageRendering: 'pixelated'
         }}>
           {/* Header */}
-          <div style={{ marginBottom: '32px', borderBottom: '3px dashed #383A3F', paddingBottom: '20px' }}>
+          <div style={{boxShadow: "inset 0 -.14em 0 var(--crt-line)",  marginBottom: '32px',  paddingBottom: '20px' }}>
             <div
               className="game-blink"
               style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: '0.65rem',
+                fontSize: "0.65em",
                 letterSpacing: '1px',
                 marginBottom: '8px'
               }}
@@ -228,64 +207,71 @@ export const AudioToMp3: React.FC = () => {
               className="game-color-shift"
               style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: '1.4rem',
+                fontSize: "1.4em",
                 margin: '0 0 12px 0',
                 lineHeight: 1.3
               }}
             >
               WAV / MP4 TO MP3
             </h1>
-            <p style={{ color: '#A7A9BE', fontSize: '1.2rem', margin: 0 }}>
+            <p style={{ color: "var(--crt-ink-2)", fontSize: "1.2em", margin: 0 }}>
               Sample-exact conversion: the original sample rate and channel layout are kept,
               nothing is trimmed or padded, and the file never leaves your browser.
             </p>
           </div>
 
           {/* Upload Dropzone */}
-          <div
+          <div className="px"
             onDragOver={(e) => {
               e.preventDefault();
-              e.currentTarget.style.background = '#2A2A3B';
-              e.currentTarget.style.borderColor = '#FF8E3C';
+              e.currentTarget.style.background = "var(--crt-tan)";
+              e.currentTarget.style.boxShadow = 'inset 0 0 0 .2em var(--crt-rose-lo)';
             }}
             onDragLeave={(e) => {
               e.preventDefault();
-              e.currentTarget.style.background = '#0F0E17';
-              e.currentTarget.style.borderColor = '#383A3F';
+              e.currentTarget.style.background = "var(--crt-tan)";
+              e.currentTarget.style.boxShadow = 'inset 0 0 0 .18em var(--crt-line)';
             }}
             onDrop={(e) => {
               handleDrop(e);
-              e.currentTarget.style.background = '#0F0E17';
-              e.currentTarget.style.borderColor = '#383A3F';
+              e.currentTarget.style.background = "var(--crt-tan)";
+              e.currentTarget.style.boxShadow = 'inset 0 0 0 .18em var(--crt-line)';
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="選擇音訊檔案"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('fileInput')?.click();
+              }
             }}
             onClick={() => document.getElementById('fileInput')?.click()}
-            style={{
-              border: '3px dashed #383A3F',
+            style={{boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               padding: '36px 20px',
               cursor: 'pointer',
-              background: '#0F0E17',
+              background: "var(--crt-tan)",
               marginBottom: '28px',
               transition: 'all 0.1s step-end',
               textAlign: 'center'
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{
+              <div className="px" style={{
                 fontFamily: "'Press Start 2P', monospace",
                 width: '48px',
                 height: '48px',
-                border: '3px solid #000000',
-                boxShadow: '3px 3px 0px #000000',
+                boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '1.2rem',
-                background: selectedFile ? '#2CB67D' : '#FF8E3C',
-                color: '#0F0E17'
+                fontSize: "1.2em",
+                background: selectedFile ? "var(--crt-green)" : "var(--crt-rose-lo)",
+                color: "var(--crt-ink)"
               }}>
                 {selectedFile ? '✓' : '+'}
               </div>
-              <span style={{ fontSize: '1.2rem', color: selectedFile ? '#2CB67D' : '#FFFFFE' }}>
+              <span style={{ fontSize: "1.2em", color: selectedFile ? "var(--crt-green)" : "var(--crt-ink)" }}>
                 {selectedFile ? `SELECTED: ${selectedFile.name}` : 'Drag & drop WAV / MP4 / M4A here, or click to browse'}
               </span>
             </div>
@@ -303,17 +289,16 @@ export const AudioToMp3: React.FC = () => {
           </div>
 
           {/* Bitrate Selector */}
-          <div style={{
+          <div className="px" style={{
             marginBottom: '28px',
-            border: '3px solid #000000',
             padding: '16px 20px',
-            background: '#0F0E17',
-            boxShadow: '4px 4px 0px #000000'
+            background: "var(--crt-tan)",
+            boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
           }}>
             <label style={{
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: '0.75rem',
-              color: '#FFFFFE',
+              fontSize: "0.75em",
+              color: "var(--crt-ink)",
               display: 'block',
               marginBottom: '14px'
             }}>
@@ -321,55 +306,43 @@ export const AudioToMp3: React.FC = () => {
             </label>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               {BITRATES.map((rate) => (
-                <button
+                <button className="px"
                   key={rate}
                   onClick={() => setKbps(rate)}
                   style={{
                     fontFamily: "'Press Start 2P', monospace",
-                    fontSize: '0.7rem',
+                    fontSize: "0.7em",
                     padding: '10px 12px',
                     cursor: 'pointer',
-                    border: '3px solid #000000',
-                    background: kbps === rate ? '#FF8E3C' : '#16161A',
-                    color: kbps === rate ? '#0F0E17' : '#A7A9BE',
-                    boxShadow: kbps === rate ? '3px 3px 0px #000000' : 'none'
+                    background: kbps === rate ? "var(--crt-rose-lo)" : "var(--crt-cream)",
+                    color: kbps === rate ? "var(--crt-tan)" : "var(--crt-ink-2)",
+                    boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
                   }}
                 >
                   {rate}k
                 </button>
               ))}
             </div>
-            <div style={{ fontSize: '1.05rem', color: '#A7A9BE', marginTop: '12px' }}>
+            <div style={{ fontSize: "1.05em", color: "var(--crt-ink-2)", marginTop: '12px' }}>
               320k is the LAME ceiling. Sample rate and channel count always follow the source.
             </div>
           </div>
 
           {/* Action Button */}
-          <button
+          <button className="px"
             onClick={convert}
             disabled={!selectedFile || isProcessing}
             style={{
               fontFamily: "'Press Start 2P', monospace",
-              background: !selectedFile || isProcessing ? '#383A3F' : '#2CB67D',
-              color: !selectedFile || isProcessing ? '#A7A9BE' : '#0F0E17',
-              border: '3px solid #000000',
+              background: !selectedFile || isProcessing ? "var(--crt-line)" : "var(--crt-green)",
+              color: !selectedFile || isProcessing ? "var(--crt-ink-2)" : "var(--crt-tan)",
               padding: '18px',
-              fontSize: '0.85rem',
+              fontSize: "0.85em",
               cursor: !selectedFile || isProcessing ? 'not-allowed' : 'pointer',
               width: '100%',
-              boxShadow: !selectedFile || isProcessing ? 'none' : '5px 5px 0px #000000',
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
               transition: 'all 0.1s step-end',
               imageRendering: 'pixelated'
-            }}
-            onMouseDown={(e) => {
-              if (!selectedFile || isProcessing) return;
-              e.currentTarget.style.transform = 'translate(3px, 3px)';
-              e.currentTarget.style.boxShadow = '2px 2px 0px #000000';
-            }}
-            onMouseUp={(e) => {
-              if (!selectedFile || isProcessing) return;
-              e.currentTarget.style.transform = 'translate(0px, 0px)';
-              e.currentTarget.style.boxShadow = '5px 5px 0px #000000';
             }}
           >
             {isProcessing ? 'ENCODING...' : 'CONVERT TO MP3 ►'}
@@ -377,15 +350,14 @@ export const AudioToMp3: React.FC = () => {
 
           {/* Status Output Terminal */}
           {statusText && (
-            <div style={{
+            <div className="px" style={{
               marginTop: '24px',
               padding: '16px',
-              border: '3px solid #000000',
-              background: '#0F0E17',
-              color: '#2CB67D',
-              fontFamily: "'VT323', monospace",
-              fontSize: '1.2rem',
-              boxShadow: '4px 4px 0px #000000'
+              background: "var(--crt-tan)",
+              color: "var(--crt-green)",
+              fontFamily: "'DotGothic16', monospace",
+              fontSize: "1.2em",
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
             }}>
               {'>'} {statusText}
             </div>
@@ -393,26 +365,25 @@ export const AudioToMp3: React.FC = () => {
 
           {/* Result Output */}
           {result && (
-            <div style={{
+            <div className="px" style={{
               marginTop: '28px',
               padding: '24px',
-              border: '3px solid #2CB67D',
-              background: '#0F0E17',
+              background: "var(--crt-tan)",
               display: 'flex',
               flexDirection: 'column',
               gap: '20px',
-              boxShadow: '5px 5px 0px #000000'
+              boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)"
             }}>
               <div style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: '0.8rem',
-                color: '#2CB67D',
+                fontSize: "0.8em",
+                color: "var(--crt-green)",
                 textAlign: 'center'
               }}>
                 {'✓'} ENCODE COMPLETE
               </div>
 
-              <div style={{ fontSize: '1.15rem', color: '#A7A9BE', lineHeight: 1.6 }}>
+              <div style={{ fontSize: "1.15em", color: "var(--crt-ink-2)", lineHeight: 1.6 }}>
                 <div>DURATION : {result.duration} (every sample kept; MP3 frame padding adds &lt;= 50 ms)</div>
                 <div>RATE&nbsp;&nbsp;&nbsp;&nbsp; : {result.sampleRate} Hz {result.resampled ? '(resampled, source rate not MP3-legal)' : '(untouched)'}</div>
                 <div>CHANNELS : {result.channels === 1 ? 'MONO' : 'STEREO'} @ {result.kbps} kbps CBR</div>
@@ -421,30 +392,21 @@ export const AudioToMp3: React.FC = () => {
 
               <audio controls src={result.url} style={{ width: '100%' }} />
 
-              <a
+              <a className="px"
                 href={result.url}
                 download={result.fileName}
                 style={{
                   fontFamily: "'Press Start 2P', monospace",
                   display: 'block',
-                  background: '#FF8E3C',
-                  color: '#0F0E17',
+                  background: "var(--crt-rose-lo)",
+                  color: "var(--crt-ink)",
                   textDecoration: 'none',
                   padding: '16px 20px',
-                  fontSize: '0.8rem',
+                  fontSize: "0.8em",
                   width: '100%',
                   textAlign: 'center',
-                  border: '3px solid #000000',
-                  boxShadow: '4px 4px 0px #000000',
+                  boxShadow: "inset 0 0 0 .18em var(--crt-line), .18em .22em 0 rgba(0,0,0,.25)",
                   boxSizing: 'border-box'
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.transform = 'translate(3px, 3px)';
-                  e.currentTarget.style.boxShadow = '1px 1px 0px #000000';
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = 'translate(0px, 0px)';
-                  e.currentTarget.style.boxShadow = '4px 4px 0px #000000';
                 }}
               >
                 DOWNLOAD {result.fileName.length > 20 ? 'MP3' : result.fileName} {'►'}

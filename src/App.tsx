@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import CrtTube from './components/CrtTube'
+import ToolLayout from './pages/Tools/Layout'
 import './App.css'
 
 const RetroPC = lazy(() => import('./pages/RetroPC'))
@@ -18,15 +19,17 @@ function App() {
   return (
     <HashRouter>
       <CrtTube>
-        <Suspense fallback={<div style={{ background: '#000', color: '#00ff00', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace' }}>Loading system...</div>}>
+        <Suspense fallback={<div style={{ background: 'var(--crt-phos-2)', color: 'var(--crt-cream)', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace' }}>Loading system...</div>}>
           <Routes>
             <Route path="/" element={<RetroPC />} />
             <Route path="/tools" element={<ToolsIndex />} />
-            <Route path="/tools/gifToZip" element={<GifToZip />} />
-            <Route path="/tools/jsonFormatter" element={<JsonFormatter />} />
-            <Route path="/tools/yamlFormatter" element={<YamlFormatter />} />
-            <Route path="/tools/videoToGif" element={<VideoToGif />} />
-            <Route path="/tools/audioToMp3" element={<AudioToMp3 />} />
+            <Route path="/tools" element={<ToolLayout />}>
+              <Route path="gifToZip" element={<GifToZip />} />
+              <Route path="jsonFormatter" element={<JsonFormatter />} />
+              <Route path="yamlFormatter" element={<YamlFormatter />} />
+              <Route path="videoToGif" element={<VideoToGif />} />
+              <Route path="audioToMp3" element={<AudioToMp3 />} />
+            </Route>
             <Route path="/me" element={<Me />} />
             <Route path="/works" element={<Works />} />
             <Route path="/game" element={<Game />} />

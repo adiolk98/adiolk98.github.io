@@ -1,207 +1,89 @@
-import React, { useEffect, useState, useRef } from "react";
-import DropdownMenu from "./DropdownMenu";
+import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import DropdownMenu from './DropdownMenu';
 
-export default function MacMenuBar({ onOpenApp, onCloseActive }) {
+export default function MacMenuBar({ onOpenApp, onCloseActive, onChangeWallpaper, onArrangeIcons, onScreensaver }) {
   const [now, setNow] = useState(new Date());
-  const [notice, setNotice] = useState(null);
+  const [notice, setNotice] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [menuPosition, setMenuPosition] = useState({ x:0, y:0 });
   const menuBarRef = useRef(null);
-  const openAudioRef = useRef(null);
-  const closeAudioRef = useRef(null);
-
-  const playSound = (ref) => {
-    if (ref.current) {
-        ref.current.currentTime = 0;
-        ref.current.play().catch(e => console.error("Audio play failed:", e));
-    }
-  };
-  
-  const closeMenu = () => {
-    if (openMenu) {
-        playSound(closeAudioRef);
-        setOpenMenu(null);
-    }
-  };
-
-  // 用桌面自己的對話框，不要用瀏覽器原生 alert——那會跳出整個 CRT 畫面。
-  const showHelp = () => setNotice(
-    '雙擊桌面圖示開啟 App。\n視窗標題列可拖曳，右上角有縮小／最大化／關閉，\n下方工作列可以切換已開啟的視窗。'
-  );
+  const okRef = useRef(null);
+  const audioRef = useRef(null);
 
   const menuConfig = {
-    icon: [
-        { label: "關於這個 App", action: () => onOpenApp('wiki') },
-        { type: "separator" },
-        { label: "設定...", disabled: true },
-        { label: "登出", disabled: true },
+    'ADI-9800': [
+      { label:'關於這台電腦', action:()=>onOpenApp('wiki') },
+      { label:'使用說明', action:()=>setNotice(true) },
     ],
-    檔案: [
-      { label: "New Finder Window", action: () => onOpenApp('finder') },
-      { label: "New Terminal", action: () => onOpenApp('terminal') },
-      { type: "separator" },
-      { label: "Move to Trash", disabled: true },
-      { label: "Empty Trash...", action: () => setNotice('垃圾桶已經是空的。') },
-      { type: "separator" },
-      { label: "Close Window", action: () => onCloseActive && onCloseActive() },
+    '檔案': [
+      { label:'開啟 Finder', action:()=>onOpenApp('finder') },
+      { label:'開啟 Terminal', action:()=>onOpenApp('terminal') },
+      { type:'separator' },
+      { label:'關閉目前視窗', action:onCloseActive },
     ],
-    編輯: [{ label: "Undo", disabled: true }, { label: "Redo", disabled: true }],
-    檢視: [{ label: "Zoom In", disabled: true }, { label: "Zoom Out", disabled: true }],
-    前往: [
-      { label: "作品集", action: () => onOpenApp('works') },
-      { label: "Developer Tools", action: () => onOpenApp('tools') },
-      { type: "separator" },
-      { label: "Open Terminal", action: () => onOpenApp('terminal') },
+    '桌面': [
+      { label:'更換桌布', action:onChangeWallpaper },
+      { label:'整理桌面圖示', action:onArrangeIcons },
+      { label:'螢幕保護程式', action:onScreensaver },
     ],
-    幫助: [{ label: "顯示幫助訊息", action: showHelp }],
+    '前往': [
+      { label:'作品集', action:()=>onOpenApp('works') },
+      { label:'工具箱', action:()=>onOpenApp('tools') },
+      { label:'關於 adi', action:()=>{ window.location.hash='/me'; } },
+    ],
   };
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-
-    const handleOutsideClick = (event) => {
-      if (menuBarRef.current && menuBarRef.current.contains(event.target)) {
-        return;
-      }
-      if (event.target.closest(".dropdown-menu-container")) {
-        return;
-      }
-      closeMenu();
+    const timer = setInterval(()=>setNow(new Date()),1000);
+    const outside = e => {
+      if (menuBarRef.current?.contains(e.target) || e.target.closest('.dropdown-menu-container')) return;
+      setOpenMenu(null);
     };
+    const escape = e => { if (e.key==='Escape') setOpenMenu(null); };
+    document.addEventListener('pointerdown',outside);
+    document.addEventListener('keydown',escape);
+    return () => { clearInterval(timer); document.removeEventListener('pointerdown',outside); document.removeEventListener('keydown',escape); };
+  },[]);
 
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener("mousedown", handleOutsideClick);
+  useEffect(() => {
+    if (!notice) return;
+    const previous = document.activeElement;
+    okRef.current?.focus({preventScroll:true});
+    const key = e => {
+      if (['Enter',' ','Escape'].includes(e.key)) { e.preventDefault(); setNotice(false); }
+      if (e.key==='Tab') { e.preventDefault(); okRef.current?.focus(); }
     };
-  }, [openMenu]);
+    document.addEventListener('keydown',key);
+    return () => { document.removeEventListener('keydown',key); previous?.focus({preventScroll:true}); };
+  },[notice]);
 
-  const handleMenuClick = (menuName, event) => {
-    if (openMenu === menuName) {
-      closeMenu();
-    } else {
-      playSound(openAudioRef);
-      const rect = event.currentTarget.getBoundingClientRect();
-      setMenuPosition({ x: rect.left, y: rect.bottom });
-      setOpenMenu(menuName);
-    }
+  const open = (name,e) => {
+    if (openMenu===name) { setOpenMenu(null); return; }
+    audioRef.current?.play().catch(()=>{});
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPosition({x:rect.left,y:rect.bottom});
+    setOpenMenu(name);
   };
+  const date = now.toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit'});
+  const time = now.toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false});
+  const warp = document.querySelector('.crt-tube .warp');
 
-  const weekDay = ["日", "一", "二", "三", "四", "五", "六"][now.getDay()];
-  const timeString = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-
-  const barStyle = {
-    position: 'relative',
-    width: '100%',
-    height: 30,
-    flex: '0 0 auto',
-    background: 'linear-gradient(180deg, var(--crt-rose) 0%, var(--crt-rose) 52%, var(--crt-rose-lo) 100%)',
-    boxShadow: 'inset 0 0 0 2px var(--crt-line)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    fontFamily: "'DotGothic16', 'Cubic_11', monospace",
-    fontSize: 14,
-    color: 'var(--crt-rose-ink)',
-    zIndex: 999
-  };
-  const leftStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 18,
-    marginLeft: 16
-  };
-  const appleStyle = {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginRight: 5,
-    width: 20,
-    height: 20
-  };
-  const menuItemStyle = (menuName) => ({
-    cursor: 'pointer',
-    padding: '3px 7px',
-    transition: 'background 0.2s',
-    userSelect: 'none',
-    backgroundColor: openMenu === menuName ? 'rgba(0,0,0,.24)' : 'transparent'
-  });
-  const rightStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    marginRight: 18
-  };
-  const dateTimeStyle = {
-    fontSize: 14
-  };
-
-  return (
-    <div style={barStyle} ref={menuBarRef}>
-      <audio ref={openAudioRef} src="/assets/sound-effects/select.wav" preload="auto" />
-      <audio ref={closeAudioRef} src="/assets/sound-effects/select.wav" preload="auto" />
-      <div style={leftStyle}>
-        {Object.keys(menuConfig).map(itemKey => {
-          if (itemKey === 'icon') {
-            return (
-              <img
-                key={itemKey}
-                src="/assets/gpt_banana_icon.webp"
-                alt="banana"
-                style={{
-                  ...appleStyle,
-                  cursor: 'pointer',
-                  padding: '2px',
-                  backgroundColor: openMenu === itemKey ? 'rgba(0,0,0,.24)' : 'transparent',
-                }}
-                onClick={(e) => handleMenuClick(itemKey, e)}
-              />
-            );
-          }
-          return (
-            <span
-              className="mac-menu-item"
-              style={{
-                ...menuItemStyle(itemKey),
-                display: typeof window !== 'undefined' && window.innerWidth <= 768 && itemKey !== '檔案' ? 'none' : 'inline-block'
-              }}
-              key={itemKey}
-              onClick={(e) => handleMenuClick(itemKey, e)}
-            >{itemKey}</span>
-          );
-        })}
-      </div>
-      {openMenu && (
-        <DropdownMenu
-          items={menuConfig[openMenu]}
-          position={menuPosition}
-          onClose={closeMenu}
-        />
-      )}
-      {notice && (
-        <div
-          onClick={() => setNotice(null)}
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}
-        >
-          <div
-            className="crt-panel px"
-            onClick={(e) => e.stopPropagation()}
-            style={{ width: 320, whiteSpace: 'pre-wrap', fontFamily: "'DotGothic16', monospace", fontSize: 13 }}
-          >
-            <div style={{ marginBottom: 12 }}>{notice}</div>
-            <div style={{ textAlign: 'right' }}>
-              <button className="crt-btn red" onClick={() => setNotice(null)}>確定</button>
-            </div>
-          </div>
-        </div>
-      )}
-      <div style={rightStyle}>
-        <span role="img" aria-label="volume">🔊</span>
-        <span style={dateTimeStyle}>{`週${weekDay} ${now.getMonth() + 1}月${now.getDate()}日`}</span>
-        <span style={dateTimeStyle}>{timeString}</span>
-      </div>
-    </div>
-  );
-} 
+  return <>
+    <header className="desktop-menu px" ref={menuBarRef}>
+      <audio ref={audioRef} src="/assets/sound-effects/select.wav" preload="none" />
+      <nav aria-label="電腦選單" className="desktop-menu-items">
+        {Object.keys(menuConfig).map(name=><button key={name} className={`${name==='ADI-9800' ? 'desktop-logo' : ''} ${openMenu===name ? 'open' : ''}`} aria-haspopup="menu" aria-expanded={openMenu===name} onClick={e=>open(name,e)}>{name}</button>)}
+      </nav>
+      <div className="desktop-clock"><span>{date}</span><time>{time}</time></div>
+    </header>
+    {openMenu && <DropdownMenu items={menuConfig[openMenu]} position={menuPosition} onClose={()=>setOpenMenu(null)} />}
+    {notice && warp && createPortal(<div className="crt-scrim on" onClick={e=>{if(e.target===e.currentTarget)setNotice(false);}}>
+      <div className="crt-dlgwrap"><div className="crt-panel crt-dlg px" role="dialog" aria-modal="true" aria-labelledby="desktop-help-title">
+        <h2 id="desktop-help-title">使用這台電腦</h2><div className="rule" />
+        <p>雙擊<em className="kw">桌面圖示</em>開啟程式。<br />拖曳標題列移動視窗。<br />用下方工作列切換或還原視窗。<br />手機點一下圖示即可開啟。</p>
+        <button ref={okRef} className="crt-btn red px" onClick={()=>setNotice(false)}>確定 <span aria-hidden="true">↵</span></button>
+      </div></div>
+    </div>,warp)}
+  </>;
+}

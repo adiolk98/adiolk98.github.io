@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import '../styles/crtPixel.css';
 
-// convex strength — larger = more bulge, but also more mismatch between the warped
-// (visual) and unwarped (actual, since CSS filter is paint-only) position of clickable
-// elements. Kept lower than the skill default (0.05) because this tube wraps a fully
-// interactive desktop — see close-button hit-area note in WindowXP.jsx.
-const K = 0.032;
+// Calibrated from the skill's tube template. Large controls tolerate the small
+// difference between the painted picture and CSS hit targets near the edges.
+const K = 0.05;
 
 /** squircle outline for the glass clip-path: near-square, corners rounded, edges bowed. Pure percentages, so computed once. */
 function squirclePolygon(n = 9, N = 112): string {
@@ -22,7 +20,7 @@ function squirclePolygon(n = 9, N = 112): string {
 }
 const GLASS_CLIP = squirclePolygon();
 
-/** destination (nx,ny) samples source at (nx*s, ny*s); s decreases with radius so the centre magnifies. */
+/** destination (nx,ny) samples source at (nx*s, ny*s); magnification decreases with radius so the centre magnifies. */
 function buildBulgeMap(w: number, h: number): { url: string; scale: number } {
   const mw = 512;
   const mh = Math.max(64, Math.round((512 * h) / w));
@@ -175,14 +173,14 @@ export default function CrtTube({ children }: CrtTubeProps) {
     redraw();
     if (document.fonts?.ready) document.fonts.ready.then(redraw);
 
-    // The bulge magnifies the centre ~6% and the corners 0%, so content
+    // The bulge magnifies the centre ~10% and the corners 0%, so content
     // scrolling through it speeds up in the middle and slows at the edges,
     // and feDisplacementMap resamples nearest-neighbour, so every horizontal
     // edge hops a pixel every ~15px of travel. That is the judder — it is not
     // a frame-rate problem (this filter costs no dropped frames), so throttling
     // or dropping the blur does nothing for it. Flatten the tube while content
     // is moving instead, eased both ways: cutting the warp on/off instead makes
-    // the whole picture jump ~6% at each end of the gesture.
+    // the whole picture jump ~10% at each end of the gesture.
     let st: ReturnType<typeof setTimeout>;
     const ease = (x: number) => 1 - (1 - x) ** 3;
     const glide = (to: number, ms: number) => {
@@ -204,14 +202,14 @@ export default function CrtTube({ children }: CrtTubeProps) {
       applyBulge();
       anim = p < 1 ? requestAnimationFrame(step) : 0;
     }
-    if (!reduceMotion) stage.addEventListener('scroll', onScroll, { passive: true });
+    if (!reduceMotion) stage.addEventListener('scroll', onScroll, { passive: true, capture: true });
 
     return () => {
       ro.disconnect();
       clearTimeout(t);
       clearTimeout(st);
       cancelAnimationFrame(anim);
-      stage.removeEventListener('scroll', onScroll);
+      stage.removeEventListener('scroll', onScroll, true);
     };
   }, []);
 
@@ -219,16 +217,17 @@ export default function CrtTube({ children }: CrtTubeProps) {
     <div className="crt-tube" ref={tubeRef}>
       <style>{`
         .crt-tube{
-          position:relative; width:100%; height:100dvh;
-          display:grid; place-items:stretch; box-sizing:border-box;
+          position:relative; width:100%; height:100dvh; padding:2vmin;
+          display:grid; place-items:center; box-sizing:border-box;
           background:#07080a;
         }
         .crt-tube .tube{
           position:relative;
-          width:100%; height:100%;
+          width:min(96vw, calc(96dvh * 4 / 3)); aspect-ratio:4/3;
+          border-radius:6px;
           padding:clamp(2px,.28vw,5px);
           background:#040507;
-          font-size:clamp(9px, min(1.92vh, 1.1vw), 22px);
+          font-size:clamp(9px, min(1.92vh, 1.44vw), 22px);
         }
         .crt-tube .glass{
           position:relative; height:100%; overflow:hidden;
@@ -237,7 +236,8 @@ export default function CrtTube({ children }: CrtTubeProps) {
           isolation:isolate;
         }
         .crt-tube .warp{ position:absolute; inset:0; will-change:filter; }
-        .crt-tube .stage{ position:absolute; inset:4.4% 4.8%; display:flex; flex-direction:column; overflow:auto; }
+        .crt-tube .stage{ position:absolute; inset:4.4% 4.8%; display:flex; flex-direction:column; overflow:hidden; }
+        .crt-tube .stage:has(> :not(.screen-page)){overflow:auto;}
         .crt-tube #crt-scan{ position:absolute; inset:0; width:100%; height:100%; z-index:6; pointer-events:none; mix-blend-mode:multiply; opacity:.5; }
         .crt-tube .sheen,.crt-tube .vig,.crt-tube .aberr,.crt-tube .flicker{ position:absolute; inset:0; z-index:9; pointer-events:none; }
         .crt-tube .sheen{ background:
@@ -249,6 +249,9 @@ export default function CrtTube({ children }: CrtTubeProps) {
           inset 0 4px 11px -6px rgba(150,200,255,.4), inset 0 -4px 11px -6px rgba(255,140,140,.4); }
         .crt-tube .flicker{ background:#cfe8ff; opacity:0; animation:crt-fl 7s steps(1) infinite; }
         @keyframes crt-fl{0%,96%{opacity:0}96.5%{opacity:.02}97%{opacity:0}98.4%{opacity:.013}98.7%{opacity:0}}
+        @media (max-width:640px), (orientation:portrait){
+          .crt-tube .tube{width:min(96vw, calc(96dvh * 3 / 4)); aspect-ratio:3/4; font-size:clamp(13px,3.6vw,20px);}
+        }
         @media (prefers-reduced-motion:reduce){ .crt-tube .flicker{ animation:none; } }
         ${cursorStyle()}
       `}</style>
@@ -257,16 +260,16 @@ export default function CrtTube({ children }: CrtTubeProps) {
         <filter id="crt-barrel" x="0" y="0" width="100%" height="100%" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feImage ref={bmapRef} result="m" preserveAspectRatio="none" />
           <feDisplacementMap ref={bdispRef} in="SourceGraphic" in2="m" scale={0} xChannelSelector="R" yChannelSelector="G" result="warped" />
-          <feGaussianBlur in="warped" stdDeviation={0.25} result="soft" />
-          <feGaussianBlur in="warped" stdDeviation={1.4} result="halo" />
-          <feComposite in="halo" in2="soft" operator="arithmetic" k1={0} k2={0.12} k3={1} k4={0} />
+          <feGaussianBlur in="warped" stdDeviation={0.5} result="soft" />
+          <feGaussianBlur in="warped" stdDeviation={2.8} result="halo" />
+          <feComposite in="halo" in2="soft" operator="arithmetic" k1={0} k2={0.22} k3={1} k4={0} />
         </filter>
       </svg>
 
       <div className="tube">
         <div className="glass" ref={glassRef}>
           <div className="warp" ref={warpRef}>
-            <canvas id="crt-scan" ref={scanRef} />
+            <canvas aria-hidden="true" id="crt-scan" ref={scanRef} />
             <div className="stage" ref={stageRef}>{children}</div>
           </div>
           <div className="sheen" />

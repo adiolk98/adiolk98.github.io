@@ -1,25 +1,18 @@
 import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Helmet } from 'react-helmet-async';
-import { GlobalStyle, Particles } from "../components/style";
-
 import DesktopIcons from "../components/DesktopIcons";
-import CustomWindowFrame from "../components/WindowXP";
 import DesktopBackground from "../components/DesktopBackground";
 import DesktopPet from "../components/DesktopPet";
+import MacMenuBar from "../components/MacMenuBar";
+import { wallpaperById, nextWallpaperId, loadWallpaperId, saveWallpaperId } from "../components/desktopSettings";
+
+import CustomWindowFrame from "../components/WindowXP";
 import Dock from "../components/Dock";
 import DropdownMenu from "../components/DropdownMenu";
 import Screensaver, { useIdleScreensaver } from "../components/Screensaver";
 import Finder from "../components/Finder";
 import { ClickSoundProvider, SoundProvider } from "../components/ClickSoundContext";
-import MacMenuBar from "../components/MacMenuBar";
 import ErrorBoundary from "../components/ErrorBoundary";
-import {
-  wallpaperById,
-  nextWallpaperId,
-  loadWallpaperId,
-  saveWallpaperId,
-} from "../components/desktopSettings";
-
 // app (Dynamic Imports)
 import { FileSystemProvider } from "../apps/FileSystemContext";
 const BrowserApp = lazy(() => import("../components/BrowserApp"));
@@ -88,12 +81,11 @@ const APP_CONFIGS = [
         maxHeight: '100%',
         overflowY: 'auto',
         boxSizing: 'border-box',
-        background: '#fff',
+        background: 'var(--crt-cream)',
         color: '#222',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        boxShadow: 'inset 0 0 0 .18em var(--crt-line)'
       }}>
-        <h2 style={{ marginBottom: '8px', color: '#2d72d9' }}>Welcome to adi.tw. v1</h2>
+        <h2 style={{ marginBottom: '8px', color: 'var(--crt-rose-lo)' }}>Welcome to adi.tw. v1</h2>
         <div>嗨，這是我的個人網站，歡迎使用，歡迎多點點看！</div>
       </div>
     )
@@ -213,13 +205,12 @@ function AppContent() {
   const [windows, setWindows] = useState([]); // [{ id, minimized, offset, z }]
   const zCounter = useRef(0);
   const [wallpaperId, setWallpaperId] = useState(loadWallpaperId);
-  const [contextMenu, setContextMenu] = useState(null); // { x, y }
   const [layoutVersion, setLayoutVersion] = useState(0);
+  const [contextMenu, setContextMenu] = useState(null); // { x, y }
   const [toast, setToast] = useState(null);
   const [rolling, setRolling] = useState(false);
   const [screensaverOn, setScreensaverOn] = useIdleScreensaver();
 
-  const background = wallpaperById(wallpaperId);
 
   const say = (message) => {
     setToast(message);
@@ -302,16 +293,15 @@ function AppContent() {
 
   const desktopMenu = [
     { label: `更換桌布（${wallpaperById(wallpaperId).name}）`, action: changeWallpaper },
-    { label: '整理桌面圖示', action: () => { setLayoutVersion(v => v + 1); say('圖示歸位'); } },
+    { label: '整理桌面圖示', action: () => { setLayoutVersion(v => v + 1); say('圖示已歸位'); } },
     { type: 'separator' },
     { label: '開啟螢幕保護程式', action: () => setScreensaverOn(true) },
     { label: '關於這台電腦', action: () => handleOpenApp('wiki') },
   ];
 
   return (
-    <div
-      className={rolling ? 'desktop-barrel-roll' : undefined}
-      style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}
+    <main
+      className={`screen-page retro-desktop ${rolling ? 'desktop-barrel-roll' : ''}`}
       onContextMenu={(e) => {
         // 視窗和工作列裡面留給瀏覽器原本的右鍵選單（Terminal、編輯器要能複製貼上）。
         if (e.target.closest('#desktop-windows-layer, [role="toolbar"]')) return;
@@ -320,48 +310,48 @@ function AppContent() {
       }}
     >
       <Helmet>
-        <title>adi | Retro OS</title>
+        <title>adi | ADI-9800</title>
         <meta name="description" content="A personal website reimagined as a retro desktop OS with windows, apps, and mini-games by adi." />
       </Helmet>
-      <DesktopBackground background={background} />
-      <Particles style={{ pointerEvents: 'none' }} />
-      <GlobalStyle />
-      <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
-        <MacMenuBar onOpenApp={handleOpenApp} onCloseActive={() => activeAppId && handleCloseApp(activeAppId)} />
-        {/* 桌面 icon：可以拖著搬家，位置會記住 */}
+      <h1 className="desktop-sr-only">adi 的像素電腦桌面</h1>
+      <MacMenuBar onOpenApp={handleOpenApp} onCloseActive={() => activeAppId && handleCloseApp(activeAppId)} onChangeWallpaper={changeWallpaper} onArrangeIcons={() => { setLayoutVersion(v => v + 1); say('圖示已歸位'); }} onScreensaver={() => setScreensaverOn(true)} />
+      <div className="desktop-viewport">
+        <DesktopBackground background={wallpaperById(wallpaperId)} />
         <DesktopIcons apps={APP_CONFIGS} onOpen={handleOpenApp} layoutVersion={layoutVersion} />
         <DesktopPet />
-        {/* 視窗 */}
-        <div id="desktop-windows-layer" style={{ position: 'relative', zIndex: 2 }}>
-          {windows.map(win => {
-            const app = APP_CONFIGS.find(a => a.id === win.id);
-            if (!app) return null;
-            const AppComponent = app.Component;
-            const { defaultSize, ...rest } = app.windowProps || {};
-            const size = defaultSize
-              ? { ...defaultSize, x: defaultSize.x + win.offset, y: defaultSize.y + win.offset }
-              : undefined;
-            return (
-              <CustomWindowFrame
-                key={app.id}
-                icon={app.icon}
-                {...rest}
-                defaultSize={size}
-                zIndex={win.z}
-                minimized={win.minimized}
-                onClose={() => handleCloseApp(app.id)}
-                onMinimize={() => handleMinimizeApp(app.id)}
-                onFocus={() => focus(app.id)}
-              >
-                <Suspense fallback={<WindowLoadingFallback />}>
-                  {AppComponent ? <AppComponent /> : app.content}
-                </Suspense>
-              </CustomWindowFrame>
-            );
-          })}
+        <div className="desktop-session">
+          {/* 視窗 */}
+          <div id="desktop-windows-layer">
+            {windows.map(win => {
+              const app = APP_CONFIGS.find(a => a.id === win.id);
+              if (!app) return null;
+              const AppComponent = app.Component;
+              const { defaultSize, ...rest } = app.windowProps || {};
+              const size = defaultSize
+                ? { ...defaultSize, x: defaultSize.x + win.offset, y: defaultSize.y + win.offset }
+                : undefined;
+              return (
+                <CustomWindowFrame
+                  key={app.id}
+                  icon={app.icon}
+                  {...rest}
+                  defaultSize={size}
+                  zIndex={win.z}
+                  minimized={win.minimized}
+                  onClose={() => handleCloseApp(app.id)}
+                  onMinimize={() => handleMinimizeApp(app.id)}
+                  onFocus={() => focus(app.id)}
+                >
+                  <Suspense fallback={<WindowLoadingFallback />}>
+                    {AppComponent ? <AppComponent /> : app.content}
+                  </Suspense>
+                </CustomWindowFrame>
+              );
+            })}
+          </div>
         </div>
-        <Dock items={dockItems} activeId={activeAppId} onSelect={toggleFromDock} onClose={handleCloseApp} />
       </div>
+      <Dock items={dockItems} activeId={activeAppId} onSelect={toggleFromDock} onClose={handleCloseApp} />
 
       {contextMenu && (
         <DropdownMenu
@@ -391,7 +381,7 @@ function AppContent() {
       )}
 
       {screensaverOn && <Screensaver onExit={() => setScreensaverOn(false)} />}
-    </div>
+    </main>
   );
 }
 
@@ -409,4 +399,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

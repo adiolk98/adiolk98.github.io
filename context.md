@@ -14,23 +14,18 @@
 * **TypeScript Discipline**:
   * Explicitly type all state, props, and async event handlers.
   * No `any` types unless interfacing with un-typed external JS libraries.
-* **Styling**:
-  * Modern CSS tokens, dark mode palette (`#0b0f19`, `#050505`), glassmorphism, Google Fonts (`Outfit`, `Space Mono`, `DM Sans`).
+* **Styling**: Shared Shōwa CRT pixel tokens live in `src/styles/crtPixel.css`. Use `DotGothic16` for body/CJK and `Press Start 2P` for short Latin labels.
 
-## Tools Domain UI & Design System Rules (`/tools/*`)
+## Main Interface and Tools Design System
 
-All pages under the `/tools` route (`src/pages/Tools/*`) must strictly adhere to the **Refined Retro Arcade & CRT Design Guidelines**:
-
-1. **Typography & Font Scaling**:
-   - Monospace & Pixel Fonts: Primary headers must use `'Press Start 2P', monospace`, and body/descriptions must use `'VT323', 'DotGothic16', monospace`.
-   - Scaled for Elegance: Main page title font sizes must be refined (around `1.2rem`–`1.6rem` for titles, `0.65rem`–`0.75rem` for badges/buttons) to maintain a sleek, high-quality arcade aesthetic without looking overly bulky.
-2. **Interactive Game Animations**:
-   - **Blinking Text (`.game-blink`)**: Sub-headers, badges, or "PRESS START" status indicators must use `animation: game-blink 1.2s steps(2, start) infinite` for classic arcade step-flicker.
-   - **Neon Color Shift (`.game-color-shift`)**: Main tool titles must apply `animation: game-color-shift 3s infinite` for continuous retro neon color transitions (Orange `#FF8E3C` ↔ Green `#2CB67D` ↔ Mint `#72F2B2` ↔ Yellow `#E8C547`).
-3. **Container & Visual Aesthetics**:
-   - Dark CRT theme (`#0F0E17` background, `#16161A` cards/panels) with CRT scanline overlay effect.
-   - Solid pixel borders (`3px`–`4px solid #000000`) and offset drop shadows (`3px`–`8px solid #000000`).
-   - Image rendering forced to `image-rendering: pixelated`.
+* Home remains an operating-system desktop: `DesktopBackground` provides pixel city wallpapers, `DesktopIcons` provides draggable shortcuts, `MacMenuBar` provides system menus, and `Dock` is the persistent taskbar. Do not replace the desktop with a dashboard or card-based home page.
+* `CrtTube` wraps the live UI in a thin bezel, squircle glass, calibrated barrel filter, soft phosphor glow and canvas scanlines. Keep reflections outside the warped layer.
+* Desktop tubes use a 4:3 ratio; portrait tubes use 3:4. Size the interface in `em` from the tube's font size. Put scrolling content in `.screen-board`, keeping the header and navigation visible.
+* Use cream (`--crt-cream`), pink (`--crt-pink`), rose (`--crt-rose`) and tan (`--crt-tan`) panels on the blue phosphor ground. Dark ink (`--crt-ink`) is for light surfaces.
+* Apply `.px` stepped corners to panels, buttons and bars. Draw frames with inset `box-shadow`; use no visible CSS borders. Media crop handles must remain unclipped.
+* Reuse `CrtHeader` and `CrtNavigation`. `Tools/Layout.tsx` supplies the shared frame for individual utilities. Tools remain fully client-side and preserve existing conversion behavior.
+* Pair interactive hover styles with active and keyboard focus states. File selection areas support Enter and Space. Use reduced-motion preferences for optional effects.
+* Verify screenshots at desktop and phone sizes, including curved navigation, glass seams, visible controls and scroll access. Keep application windows inside the measured desktop area.
 
 ## Deployment Contract
 
